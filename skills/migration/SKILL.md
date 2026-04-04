@@ -28,6 +28,8 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 - 마이그레이션 위험도 (높음 / 보통 / 낮음)
 
 분석 결과를 출력한 후 진행 여부를 확인한다.
+- 사용자가 "예"를 선택하면 Step 3으로 진행한다.
+- 사용자가 "아니오"를 선택하면 마이그레이션 범위 재조정 후 Step 2를 반복한다.
 
 ---
 
@@ -47,7 +49,7 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 
 플랫폼별 테스트 명령어:
 - Android: `./gradlew test`
-- iOS: `xcodebuild test -scheme <SchemeName> -destination 'platform=iOS Simulator,name=iPhone 15'`
+- iOS: `xcodebuild test -scheme <SchemeName: 프로젝트 스킴명으로 교체> -destination 'platform=iOS Simulator,name=iPhone 15'`
 
 ---
 
@@ -62,6 +64,15 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 ## Step 6: 완료 검증 (verification-before-completion)
 
 `superpowers:verification-before-completion` 스킬을 호출한다.
+
+---
+
+## 에러 처리
+
+마이그레이션 중 특정 단계가 실패하면:
+1. 현재까지 완료된 작업 목록을 `.yeoboya-state.json`에 저장한다.
+2. 실패 원인과 영향 범위를 사용자에게 보고한다.
+3. "중단 / 재시도 / 건너뜀" 중 진행 방식을 사용자에게 확인한다.
 
 ---
 
