@@ -24,6 +24,9 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 
 ## Step 2: 기획서 분석 및 경로 분기
 
+Claude가 직접 두 PDF를 분석해 변경 사항을 추출한다.
+완료된 작업 목록은 `.yeoboya-state.json`의 `completedTasks` 필드를 참조한다.
+
 **신규 기획서인 경우** (`--prev` 없음):
 → Step 3으로 이동
 
@@ -38,7 +41,7 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
    - 삭제된 요구사항: ...
    - 영향받는 완료 작업: ...
    ```
-4. 변경분만 대상으로 Step 3 이후를 진행한다.
+4. 변경분만 대상으로 Step 3(brainstorming)부터 다시 진행한다. 단, 변경이 없는 완료 작업은 건너뛴다.
 
 ---
 
@@ -63,9 +66,14 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 
 각 작업 단위마다 아래 순서를 따른다.
 1. `agents/writer.md` 기반 구현 subagent 실행 → 코드 작성 + 테스트
+   - 테스트 실행은 구현 subagent(writer.md)가 담당한다.
 2. 테스트 실패 시: 에러 메시지를 구현 subagent에 피드백 → 수정 → 재실행
 3. 테스트 통과 후: `agents/reviewer.md` 기반 검토 subagent 실행
 4. CHANGES REQUESTED 시: 수정 사항을 구현 subagent에 전달 → 수정 → 재검토
+
+Writer/Reviewer 루프 종료 조건:
+- 루프 최대 3회까지 반복한다.
+- 3회 초과 시 실패 사항을 사용자에게 보고하고 진행 여부를 확인한다.
 
 플랫폼별 테스트 명령어:
 - Android: `./gradlew test`
