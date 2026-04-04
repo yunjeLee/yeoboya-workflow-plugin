@@ -57,7 +57,12 @@ Sources/
 
 `superpowers:executing-plans` 스킬을 호출한다.
 - `agents/writer.md` 기반 subagent가 프로젝트를 생성한다.
-- 각 모듈/디렉토리 생성 후 빌드 확인을 수행한다.
+
+**Subagent가 수행하는 작업:**
+- 모듈/디렉토리 생성
+- **Android:** build.gradle.kts, settings.gradle.kts, 최소 동작 코드(Application 클래스 등) 작성
+- **iOS:** Package.swift 또는 Xcode 프로젝트 파일, 최소 동작 AppDelegate/App 파일 작성
+- 각 모듈 생성 후 즉시 빌드 확인 수행
 
 **Android 빌드 확인:**
 ```bash
@@ -68,6 +73,8 @@ Sources/
 ```bash
 xcodebuild build -scheme <SchemeName: 프로젝트 스킴명으로 교체> -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
+
+**빌드 실패 시:** 에러 내용을 사용자에게 보고하고 계속 진행 여부를 확인한다.
 
 ---
 
@@ -80,3 +87,7 @@ xcodebuild build -scheme <SchemeName: 프로젝트 스킴명으로 교체> -dest
 - 생성된 모듈/구조: [목록]
 - 빌드 결과: SUCCESS
 ```
+
+**생성된 모듈/구조 예시:**
+- **Android:** :app, :feature:home, :domain, :data, :core:common, :core:designsystem
+- **iOS:** App/, Features/Home/, Domain/, Data/, Core/
