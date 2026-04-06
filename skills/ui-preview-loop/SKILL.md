@@ -15,6 +15,12 @@ Composable 또는 View의 UI를 스크린샷 기반으로 반복 수정한다.
 
 ---
 
+## 공통 지침 참조
+- 시작 시: `shared/prompt-refiner.md` 지침을 따른다.
+- UI 작업 감지 시: `shared/ui-review.md` 지침을 따른다.
+
+---
+
 ## Step 1: 입력 수신
 
 아래 정보를 확인한다.

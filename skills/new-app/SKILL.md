@@ -97,8 +97,8 @@ description: "기획서(PDF) 또는 텍스트 설명을 기반으로 새 Android
 
 `superpowers:brainstorming` 스킬을 호출한다.
 - 기획서를 분석해 필요한 화면, 기능, 아키텍처를 결정한다.
-- Android: Clean Architecture + Multi-module + MVI
-- iOS: Clean Architecture + MVVM
+- Step 1.5에서 저장한 `.yeoboya-state.json`의 `architecture` 및 `designPattern` 값을 반드시 참조한다.
+- 해당 값에 맞는 모듈 구조와 설계 방향을 결정한다.
 
 ---
 
