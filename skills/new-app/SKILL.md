@@ -13,6 +13,12 @@ description: "기획서(PDF) 또는 텍스트 설명을 기반으로 새 Android
 
 ---
 
+## 공통 지침 참조
+- 시작 시: `shared/prompt-refiner.md` 지침을 따른다.
+- UI 작업 감지 시: `shared/ui-review.md` 지침을 따른다.
+
+---
+
 ## Step 1: 플랫폼 선택
 
 신규 프로젝트이므로 자동 감지 불가. 직접 선택을 받는다.
@@ -20,6 +26,69 @@ description: "기획서(PDF) 또는 텍스트 설명을 기반으로 새 Android
 ```
 "Android(Kotlin/Compose)와 iOS(Swift/SwiftUI) 중 어떤 플랫폼인가요?
 또는 둘 다 생성하시겠습니까?"
+```
+
+---
+
+## Step 1.5: 아키텍처 & 디자인 패턴 선택
+
+플랫폼 선택 직후 아래 두 항목을 필수로 선택받는다.
+선택 결과는 `.yeoboya-state.json`에 저장해 이후 모든 단계에서 참조한다.
+
+### 아키텍처 선택 (필수)
+
+**Android:**
+```
+1. Clean Architecture (추천)
+2. MVC
+3. MVVM
+4. 직접 입력
+```
+
+**iOS:**
+```
+1. Clean Architecture (추천)
+2. MVC
+3. VIPER
+4. 직접 입력
+```
+
+### 디자인 패턴 선택 (필수)
+
+**Android:**
+```
+1. MVI + StateFlow (추천)
+2. MVVM + LiveData
+3. MVVM + StateFlow
+4. 직접 입력
+```
+
+**iOS:**
+```
+1. MVVM + Combine (추천)
+2. MVP
+3. Redux
+4. 직접 입력
+```
+
+### 추가 옵션 (선택사항)
+
+아래 항목은 선택사항이다. 입력하지 않으면 선택한 아키텍처에 맞게 Claude가 추천한다.
+
+- 멀티모듈 여부 (Android만 해당)
+- 모듈 분리 전략
+- 기타 기술 스택
+
+### 상태 저장
+
+선택 완료 후 `.yeoboya-state.json`에 저장한다.
+
+```json
+{
+  "architecture": "[선택한 아키텍처]",
+  "designPattern": "[선택한 디자인 패턴]",
+  "additionalOptions": {}
+}
 ```
 
 ---
