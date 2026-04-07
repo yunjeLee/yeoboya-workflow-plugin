@@ -23,7 +23,7 @@ description: "plan.md를 읽어 지정한 Phase를 실행한다. /phase 1, /phas
 
 ```
 plan.md 파일을 찾을 수 없습니다.
-먼저 /feature, /new-app, 또는 /migration을 실행해 계획을 작성하세요.
+먼저 plan.md를 생성하는 스킬(/feature, /new-app 등)을 실행해 계획을 작성하세요.
 ```
 
 ---
@@ -43,7 +43,8 @@ plan.md 파일을 찾을 수 없습니다.
 ## Step 3: 실행
 
 `superpowers:executing-plans` 스킬을 호출한다.
-- 선택된 Phase의 Task 목록을 전달한다.
+- 선택된 Phase 전체(Phase 내 모든 Task)를 하나의 실행 단위로 전달한다.
+- 실행 중 실패가 발생하면 사용자에게 실패 내용을 보고하고, 중단할지 계속 진행할지 확인한다.
 
 ---
 
@@ -56,8 +57,9 @@ Phase 실행 완료 후 plan.md를 업데이트한다.
 
 ```
 Phase N 완료. {skill}-plan.md 업데이트됨.
+(N은 실제 완료된 Phase 번호로 치환한다)
 
 다음 단계:
-  /phase N+1   → 다음 Phase 실행
-  /phase       → 첫 미완료 Phase 자동 실행
+  /phase [N+1]   → 다음 Phase 실행 (N+1은 실제 다음 번호로 치환)
+  /phase         → 첫 미완료 Phase 자동 실행
 ```
