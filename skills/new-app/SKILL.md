@@ -128,28 +128,23 @@ Sources/
 
 ---
 
-## Step 4: 프로젝트 생성 (executing-plans)
+## Step 4: 계획 저장 및 실행 안내
 
-`superpowers:executing-plans` 스킬을 호출한다.
-- `agents/writer.md` 기반 subagent가 프로젝트를 생성한다.
+writing-plans 완료 후 계획을 파일로 저장한다.
 
-**Subagent가 수행하는 작업:**
-- 모듈/디렉토리 생성
-- **Android:** build.gradle.kts, settings.gradle.kts, 최소 동작 코드(Application 클래스 등) 작성
-- **iOS:** Package.swift 또는 Xcode 프로젝트 파일, 최소 동작 AppDelegate/App 파일 작성
-- 각 모듈 생성 후 즉시 빌드 확인 수행
+**파일명 규칙:**
+- 기본: `new-app-plan.md`
+- `new-app-plan.md`가 이미 존재하면: `new-app-plan-YYYYMMDD.md` (오늘 날짜)
 
-**Android 빌드 확인:**
-```bash
-./gradlew assembleDebug
+저장 완료 후 아래 메시지를 출력한다:
+
 ```
+계획이 new-app-plan.md 에 저장됐습니다.
 
-**iOS 빌드 확인:**
-```bash
-xcodebuild build -scheme <SchemeName: 프로젝트 스킴명으로 교체> -destination 'platform=iOS Simulator,name=iPhone 15'
+시작하려면:
+  /phase 1       → Phase 1부터 실행
+  /phase         → 체크리스트 기준 첫 미완료 Phase 실행
 ```
-
-**빌드 실패 시:** 에러 내용을 사용자에게 보고하고 계속 진행 여부를 확인한다.
 
 ---
 
@@ -161,10 +156,6 @@ xcodebuild build -scheme <SchemeName: 프로젝트 스킴명으로 교체> -dest
 - 앱 이름: [이름]
 - 아키텍처: [선택한 아키텍처]
 - 디자인 패턴: [선택한 디자인 패턴]
-- 생성된 모듈/구조: [목록]
-- 빌드 결과: SUCCESS
+- 계획 파일: new-app-plan.md
+- 구현은 /phase로 단계별 실행
 ```
-
-**생성된 모듈/구조 예시:**
-- **Android:** :app, :feature:home, :domain, :data, :core:common, :core:designsystem
-- **iOS:** App/, Features/Home/, Domain/, Data/, Core/
