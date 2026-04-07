@@ -44,11 +44,17 @@ plan.md 파일을 찾을 수 없습니다.
 
 선택된 Phase 내 Task를 하나씩 순서대로 실행한다.
 
+Phase 실행 시작 시 아래 목록을 초기화한다:
+- 성공 Task 목록: []
+- Auto-Fix 성공 Task 목록: []  ← 코드는 성공했으나 auto-fix 루프를 거친 Task
+- 수동 처리 필요 Task 목록: []  ← auto-fix 3회 실패 후 y 응답으로 진행한 Task
+
 각 Task에 대해 아래 순서를 따른다.
 
 ### 3-1. Task 실행
 
-`superpowers:executing-plans` 스킬을 호출해 해당 Task를 실행한다.
+`superpowers:executing-plans` 스킬을 호출해 해당 Task의 코드 구현을 수행한다.
+(테스트 실행은 Step 3-2에서 별도로 수행한다)
 
 ### 3-2. Auto-Fix 루프 실행
 
@@ -77,7 +83,9 @@ Task [Task 이름] 자동 수정 실패 (3/3 시도).
 ## Step 4: plan.md 체크리스트 업데이트
 
 Phase 실행 완료 후 plan.md를 업데이트한다.
-- 해당 Phase 내 모든 `- [ ]` → `- [x]` 로 변경한다.
+- 성공 Task와 Auto-Fix 성공 Task: `- [ ]` → `- [x]` 로 변경
+- 수동 처리 필요 Task: `- [ ]` 그대로 유지
+- 사용자가 n 응답으로 중단한 경우: 이후 Task 전체 `- [ ]` 그대로 유지
 
 완료 후 안내:
 
