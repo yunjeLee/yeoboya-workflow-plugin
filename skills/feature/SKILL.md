@@ -72,32 +72,23 @@ Claude가 직접 두 PDF를 분석해 변경 사항을 추출한다.
 
 ---
 
-## Step 5: 구현 실행 (executing-plans + Worker 격리)
+## Step 5: 계획 저장 및 실행 안내
 
-`superpowers:executing-plans` 스킬을 호출한다.
+writing-plans 완료 후 계획을 파일로 저장한다.
 
-각 작업 단위마다 아래 순서를 따른다.
-1. `agents/writer.md` 기반 구현 subagent 실행 → 코드 작성 + 테스트
-   - 테스트 실행은 구현 subagent(writer.md)가 담당한다.
-2. 테스트 실패 시: 에러 메시지를 구현 subagent에 피드백 → 수정 → 재실행
-3. 테스트 통과 후: `agents/reviewer.md` 기반 검토 subagent 실행
-4. CHANGES REQUESTED 시: 수정 사항을 구현 subagent에 전달 → 수정 → 재검토
+**파일명 규칙:**
+- 기본: `feature-plan.md`
+- `feature-plan.md`가 이미 존재하면: `feature-plan-YYYYMMDD.md` (오늘 날짜)
 
-Writer/Reviewer 루프 종료 조건:
-- 루프 최대 3회까지 반복한다.
-- 3회 초과 시 실패 사항을 사용자에게 보고하고 진행 여부를 확인한다.
+저장 완료 후 아래 메시지를 출력한다:
 
-플랫폼별 테스트 명령어:
-- Android: `./gradlew test`
-- iOS: `xcodebuild test -scheme <SchemeName> -destination 'platform=iOS Simulator,name=iPhone 15'`
+```
+계획이 feature-plan.md 에 저장됐습니다.
 
----
-
-## Step 6: 완료 검증 (verification-before-completion)
-
-`superpowers:verification-before-completion` 스킬을 호출한다.
-- 모든 요구사항이 구현됐는지 체크리스트로 확인한다.
-- 통과 후 완료 리포트를 출력한다.
+시작하려면:
+  /phase 1       → Phase 1부터 실행
+  /phase         → 체크리스트 기준 첫 미완료 Phase 실행
+```
 
 ---
 
@@ -108,9 +99,6 @@ Writer/Reviewer 루프 종료 조건:
 - 플랫폼: Android / iOS
 - 기획서: [파일명]
 - 변경 모드: 신규 / 수정 대응
-- 구현 항목:
-  - [x] 요구사항 A
-  - [x] 요구사항 B
-- 테스트 결과: PASS
-- 검토 결과: APPROVED
+- 계획 파일: feature-plan.md
+- 구현은 /phase로 단계별 실행
 ```
