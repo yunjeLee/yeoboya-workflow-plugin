@@ -28,6 +28,7 @@ Phase 완료 시 프로젝트 루트에 저장한다.
   "nextPhase": "writing-plans|task-N|task-N+1|done",
   "platform": "Android|iOS",
   "files": ["재시작 후 가장 먼저 읽을 파일들"],
+  "completedTasks": [],
   "taskIndex": 0
 }
 ```

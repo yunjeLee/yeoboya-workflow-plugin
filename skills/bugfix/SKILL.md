@@ -14,8 +14,8 @@ description: "버그 설명, 에러 로그, 스크린샷 또는 텍스트 설명
 ---
 
 ## 공통 지침 참조
-- 시작 시: `shared/prompt-refiner.md` 지침을 따른다.
-- UI 작업 감지 시: `shared/ui-review.md` 지침을 따른다.
+- 시작 시: `shared/prompt-refiner.md`를 Read tool로 읽고 지침을 따른다.
+- UI 작업 감지 시: `shared/ui-review.md`를 Read tool로 읽고 지침을 따른다.
 
 ---
 

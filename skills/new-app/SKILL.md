@@ -14,8 +14,8 @@ description: "기획서(PDF) 또는 텍스트 설명을 기반으로 새 Android
 ---
 
 ## 공통 지침 참조
-- 시작 시: `shared/prompt-refiner.md` 지침을 따른다.
-- UI 작업 감지 시: `shared/ui-review.md` 지침을 따른다.
+- 시작 시: `shared/prompt-refiner.md`를 Read tool로 읽고 지침을 따른다.
+- UI 작업 감지 시: `shared/ui-review.md`를 Read tool로 읽고 지침을 따른다.
 
 ---
 
@@ -81,7 +81,7 @@ description: "기획서(PDF) 또는 텍스트 설명을 기반으로 새 Android
 
 ### 상태 저장
 
-선택 완료 후 `.yeoboya-state.json`에 저장한다.
+선택 완료 후 `.yeoboya-state.json`에 기존 필드를 유지하면서 병합 저장한다.
 
 ```json
 {
@@ -159,6 +159,8 @@ xcodebuild build -scheme <SchemeName: 프로젝트 스킴명으로 교체> -dest
 ## New App 완료 리포트
 - 플랫폼: Android / iOS / Both
 - 앱 이름: [이름]
+- 아키텍처: [선택한 아키텍처]
+- 디자인 패턴: [선택한 디자인 패턴]
 - 생성된 모듈/구조: [목록]
 - 빌드 결과: SUCCESS
 ```
