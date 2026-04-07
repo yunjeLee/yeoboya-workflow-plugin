@@ -42,9 +42,35 @@ plan.md 파일을 찾을 수 없습니다.
 
 ## Step 3: 실행
 
-`superpowers:executing-plans` 스킬을 호출한다.
-- 선택된 Phase 전체(Phase 내 모든 Task)를 하나의 실행 단위로 전달한다.
-- 실행 중 실패가 발생하면 사용자에게 실패 내용을 보고하고, 중단할지 계속 진행할지 확인한다.
+선택된 Phase 내 Task를 하나씩 순서대로 실행한다.
+
+각 Task에 대해 아래 순서를 따른다.
+
+### 3-1. Task 실행
+
+`superpowers:executing-plans` 스킬을 호출해 해당 Task를 실행한다.
+
+### 3-2. Auto-Fix 루프 실행
+
+Task 실행 완료 후 `shared/auto-fix-loop.md`를 Read tool로 읽고 지침을 따른다.
+
+**Auto-Fix 성공 시:**
+- 결과를 기록하고 다음 Task로 진행한다.
+
+**Auto-Fix 실패 시 (3회 초과):**
+아래 메시지를 출력하고 사용자에게 확인한다.
+
+```
+Task [Task 이름] 자동 수정 실패 (3/3 시도).
+마지막 에러: [에러 요약]
+
+계속 진행할까요?
+  y → 다음 Task로 진행 (이 Task는 수동 처리 필요로 기록)
+  n → Phase 실행 중단 (plan.md 업데이트 안 함)
+```
+
+- `y` 응답: 이 Task를 "수동 처리 필요"로 기록하고 다음 Task로 진행
+- `n` 응답: 실행을 즉시 중단하고 Step 4(plan.md 업데이트)를 건너뜀
 
 ---
 
@@ -58,6 +84,11 @@ Phase 실행 완료 후 plan.md를 업데이트한다.
 ```
 Phase N 완료. {skill}-plan.md 업데이트됨.
 (N은 실제 완료된 Phase 번호로 치환한다)
+
+## Phase N 완료 리포트
+- 성공한 Task: {성공 수}개
+- Auto-Fix 성공: {Auto-Fix로 통과한 수}개
+- 수동 처리 필요: {실패 기록된 수}개
 
 다음 단계:
   /phase [N+1]   → 다음 Phase 실행 (N+1은 실제 다음 번호로 치환)
