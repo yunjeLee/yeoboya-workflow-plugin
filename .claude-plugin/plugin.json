@@ -8,7 +8,8 @@
     { "name": "migration",        "path": "skills/migration/SKILL.md" },
     { "name": "new-app",          "path": "skills/new-app/SKILL.md" },
     { "name": "ui-preview-loop",  "path": "skills/ui-preview-loop/SKILL.md" },
-    { "name": "phase",            "path": "skills/phase/SKILL.md" }
+    { "name": "phase",            "path": "skills/phase/SKILL.md" },
+    { "name": "auto-fix",         "path": "skills/auto-fix/SKILL.md" }
   ],
   "dependencies": [
     {
