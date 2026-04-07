@@ -52,29 +52,23 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 
 ---
 
-## Step 4: 병렬 실행 (subagent-driven-development)
+## Step 4: 계획 저장 및 실행 안내
 
-`superpowers:subagent-driven-development` 스킬을 호출한다.
-- 독립적인 마이그레이션 작업을 병렬로 처리한다.
-- 각 작업 완료 후 `agents/writer.md` 기반 subagent가 구현한다.
+writing-plans 완료 후 계획을 파일로 저장한다.
 
-플랫폼별 테스트 명령어:
-- Android: `./gradlew test`
-- iOS: `xcodebuild test -scheme <SchemeName: 프로젝트 스킴명으로 교체> -destination 'platform=iOS Simulator,name=iPhone 15'`
+**파일명 규칙:**
+- 기본: `migration-plan.md`
+- `migration-plan.md`가 이미 존재하면: `migration-plan-YYYYMMDD.md` (오늘 날짜)
 
----
+저장 완료 후 아래 메시지를 출력한다:
 
-## Step 5: 무결성 검토
+```
+계획이 migration-plan.md 에 저장됐습니다.
 
-`agents/reviewer.md` 기반 검토 subagent를 실행한다.
-- 마이그레이션 전후 동작이 동일한지 검토한다.
-- 누락된 마이그레이션 항목이 없는지 확인한다.
-
----
-
-## Step 6: 완료 검증 (verification-before-completion)
-
-`superpowers:verification-before-completion` 스킬을 호출한다.
+시작하려면:
+  /phase 1       → Phase 1부터 실행
+  /phase         → 체크리스트 기준 첫 미완료 Phase 실행
+```
 
 ---
 
@@ -93,7 +87,6 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 ## Migration 완료 리포트
 - 플랫폼: Android / iOS
 - 마이그레이션 범위: [설명]
-- 처리 단위 수: N개
-- 테스트 결과: PASS
-- 검토 결과: APPROVED
+- 계획 파일: migration-plan.md
+- 구현은 /phase로 단계별 실행
 ```
