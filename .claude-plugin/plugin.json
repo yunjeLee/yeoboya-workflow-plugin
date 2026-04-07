@@ -11,6 +11,10 @@
     { "name": "phase",            "path": "skills/phase/SKILL.md" },
     { "name": "auto-fix",         "path": "skills/auto-fix/SKILL.md" }
   ],
+  "agents": [
+    { "name": "writer",   "path": "agents/writer.md" },
+    { "name": "reviewer", "path": "agents/reviewer.md" }
+  ],
   "dependencies": [
     {
       "plugin": "superpowers",

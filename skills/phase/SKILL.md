@@ -53,8 +53,8 @@ Phase 실행 시작 시 아래 목록을 초기화한다:
 
 ### 3-1. Task 실행
 
-`superpowers:executing-plans` 스킬을 호출해 해당 Task의 코드 구현을 수행한다.
-(테스트 실행은 Step 3-2에서 별도로 수행한다)
+`writer` 에이전트를 디스패치해 해당 Task의 코드 구현을 수행한다.
+writer 에이전트가 사용자에게 TDD 여부를 확인한 후 구현 방식을 선택한다.
 
 ### 3-2. Auto-Fix 루프 실행
 
@@ -80,9 +80,18 @@ Task [Task 이름] 자동 수정 실패 (3/3 시도).
 
 ---
 
-## Step 4: plan.md 체크리스트 업데이트
+## Step 4: 코드 리뷰
 
-Phase 실행 완료 후 plan.md를 업데이트한다.
+Phase 내 모든 Task 실행 완료 후 `reviewer` 에이전트를 디스패치한다.
+
+reviewer 에이전트가 `superpowers:requesting-code-review` 스킬을 통해 이번 Phase에서 변경된 코드를 검토한다.
+리뷰 결과 수신 후 `superpowers:receiving-code-review` 스킬로 수정 사항을 처리한다.
+
+---
+
+## Step 5: plan.md 체크리스트 업데이트
+
+리뷰 및 수정 완료 후 plan.md를 업데이트한다.
 - 성공 Task와 Auto-Fix 성공 Task: `- [ ]` → `- [x]` 로 변경
 - 수동 처리 필요 Task: `- [ ]` 그대로 유지
 - 사용자가 n 응답으로 중단한 경우: 이후 Task 전체 `- [ ]` 그대로 유지
