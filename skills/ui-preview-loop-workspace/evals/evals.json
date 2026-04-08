@@ -1,0 +1,23 @@
+{
+  "skill_name": "ui-preview-loop",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "HomeScreen Composable의 UI를 수정하고 싶어. 파일은 /Users/iyunje/AndroidStudio/dalla/feature/home/src/main/java/com/example/home/HomeScreen.kt에 있어.",
+      "expected_output": "기존 파일을 읽고 @Preview가 없으면 추가, 있으면 개선한다. 그 후 (1/10회) 피드백 루프 메시지를 출력하고 사용자 응답을 기다린다.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/ui-preview-loop LoginButton — 아직 파일은 없고 새로 만들어야 해. 라운드 코너에 Primary 색상 버튼이었으면 좋겠어.",
+      "expected_output": "파일이 없으므로 새 Composable + @Preview 코드를 생성한다. 라운드 코너와 Primary 색상 반영. 그 후 (1/10회) 피드백 루프 메시지를 출력한다.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "홈 화면 카드 컴포넌트 UI 좀 다듬어줘. 지금 너무 딱딱하고 여백이 없어서 답답해 보여.",
+      "expected_output": "스킬이 트리거되어 대상 컴포넌트를 질문한다. 또는 코드베이스에서 홈 카드 컴포넌트를 찾아 @Preview와 함께 개선안을 제시하고 피드백 루프를 시작한다.",
+      "files": []
+    }
+  ]
+}
