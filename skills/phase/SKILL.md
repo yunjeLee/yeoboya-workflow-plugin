@@ -36,7 +36,7 @@ plan.md 파일을 찾을 수 없습니다.
 
 **번호 미지정 시 (`/phase`):**
 - plan.md 전체를 스캔해 `- [ ]`가 남아있는 첫 번째 Phase를 선택한다.
-- 모든 Phase가 `- [x]`이면: `"모든 Phase가 완료됐습니다."` 출력 후 종료
+- 모든 Phase가 `- [x]`이면: `"모든 Phase가 완료됐습니다."` 출력 후 `superpowers:finishing-a-development-branch` 스킬을 호출한다.
 
 ---
 

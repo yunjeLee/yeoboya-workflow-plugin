@@ -19,19 +19,19 @@ description: "버그 설명, 에러 로그, 스크린샷 또는 텍스트 설명
 
 ---
 
-## Step 1: 플랫폼 자동 감지
+## Step 0: 작업 격리 (선택)
 
-프로젝트 루트에서 아래 파일을 스캔한다.
-
-```
-build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
-*.xcodeproj 또는 *.xcworkspace 존재    → PLATFORM=iOS
-둘 다 없음 → "Android / iOS 중 어떤 프로젝트인가요?" 질문
-```
+브랜치 격리가 필요하다면 `superpowers:using-git-worktrees` 스킬을 먼저 호출한다.
 
 ---
 
-## Step 2: 버그 유형 분류 (Router)
+## Step 1: 플랫폼 자동 감지
+
+`shared/workflow.md`를 Read tool로 읽고 **플랫폼 자동 감지** 섹션의 지침을 따른다.
+
+---
+
+## Step 2: 버그 유형 분류
 
 입력된 버그 설명을 분석해 유형을 판별한다.
 
@@ -53,10 +53,21 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 
 ## Step 3-A: 로직 / 크래시 버그 수정 플로우
 
-### 3-A-1. 원인 분석 (systematic-debugging)
+### 3-A-1. 원인 분석
 `superpowers:systematic-debugging` 스킬을 호출한다.
 
-### 3-A-2. 테스트로 재현 후 수정 (test-driven-development)
+### 3-A-2. 복잡도 판단
+
+원인 분석 결과를 바탕으로 수정 범위를 확인한다.
+
+**단순 수정** (1~2개 파일, 명확한 원인):
+→ Step 3-A-3으로 바로 진행한다.
+
+**복잡한 수정** (3개 이상 파일, 여러 레이어에 걸침):
+→ `superpowers:writing-plans` 스킬을 호출해 수정 계획을 작성한다.
+→ `shared/workflow.md`를 Read tool로 읽고 **계획 저장 및 실행 안내** 섹션의 지침을 따른다.
+
+### 3-A-3. 테스트로 재현 후 수정
 `superpowers:test-driven-development` 스킬을 호출한다.
 - 버그를 재현하는 실패 테스트를 먼저 작성한다.
 - 테스트를 통과하는 최소 수정을 적용한다.
@@ -65,7 +76,7 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 - Android: `./gradlew test`
 - iOS: `xcodebuild test -scheme <SchemeName> -destination 'platform=iOS Simulator,name=iPhone 15'`
 
-### 3-A-3. 검증
+### 3-A-4. 검증
 `superpowers:verification-before-completion` 스킬을 호출한다.
 
 ---
@@ -85,7 +96,6 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 @Test
 fun `버그 재현 - [증상 설명]`() {
     paparazzi.snapshot {
-        // 버그가 발생하는 상태로 컴포넌트 렌더링
         BuggyComposable(state = BugState(...))
     }
 }
@@ -113,6 +123,12 @@ swift test --filter SnapshotTests -- -record
 
 ### 3-B-4. 검증
 `superpowers:verification-before-completion` 스킬을 호출한다.
+
+---
+
+## Step 4: 브랜치 마무리
+
+수정이 완료되면 `superpowers:finishing-a-development-branch` 스킬을 호출한다.
 
 ---
 
