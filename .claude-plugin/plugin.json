@@ -7,6 +7,7 @@
     { "name": "bugfix",           "path": "skills/bugfix/SKILL.md" },
     { "name": "migration",        "path": "skills/migration/SKILL.md" },
     { "name": "new-app",          "path": "skills/new-app/SKILL.md" },
+    { "name": "onboard",          "path": "skills/onboard/SKILL.md" },
     { "name": "ui-preview-loop",  "path": "skills/ui-preview-loop/SKILL.md" },
     { "name": "phase",            "path": "skills/phase/SKILL.md" },
     { "name": "auto-fix",         "path": "skills/auto-fix/SKILL.md" }
