@@ -99,12 +99,42 @@ Task 실패 → 사용자 확인 후 계속 or 중단
 
 ## 설치
 
-```bash
-git clone https://github.com/yeoboya/yeoboya-workflow-plugin
+### 1. superpowers 선 설치
+
+이 플러그인은 `superpowers` 플러그인의 스킬(`brainstorming`, `writing-plans`, `systematic-debugging`, `test-driven-development` 등)을 호출합니다. 먼저 설치해야 합니다. 이미 설치한 팀원은 이 단계를 건너뛰세요.
+
+```
+/plugin marketplace add obra/superpowers
+/plugin install superpowers@superpowers
 ```
 
-> **주의:** 이 플러그인은 `superpowers` 플러그인에 의존합니다.
-> Claude Code 플러그인 매니저가 자동으로 설치하지 않는 경우 별도로 설치하세요.
+> **가정**: superpowers 의 공식 배포 경로는 `obra/superpowers` 로 가정. 팀이 자체 fork 나 private marketplace 를 쓰고 있다면 해당 경로로 변경하세요.
+
+### 2. yeoboya-workflow 설치
+
+**GitHub 에서 직접 설치 (권장):**
+
+```
+/plugin marketplace add yunjeLee/yeoboya-workflow-plugin
+/plugin install yeoboya-workflow@yeoboya-apps
+```
+
+**로컬 clone 후 설치 (오프라인 / 수정 테스트용):**
+
+```bash
+git clone https://github.com/yunjeLee/yeoboya-workflow-plugin
+```
+
+```
+/plugin marketplace add ./yeoboya-workflow-plugin
+/plugin install yeoboya-workflow@yeoboya-apps
+```
+
+### 3. 업데이트
+
+```
+/plugin marketplace update yeoboya-apps
+```
 
 ---
 

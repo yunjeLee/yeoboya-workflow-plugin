@@ -1,0 +1,16 @@
+{
+  "name": "yeoboya-apps",
+  "owner": { "name": "yeoboya" },
+  "metadata": {
+    "description": "yeoboya 앱팀 공통 플러그인 카탈로그",
+    "version": "2.1.0"
+  },
+  "plugins": [
+    {
+      "name": "yeoboya-workflow",
+      "source": "./",
+      "description": "앱팀 공통 개발 워크플로우 플러그인 (Android / iOS)",
+      "version": "2.1.0"
+    }
+  ]
+}

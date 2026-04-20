@@ -2,21 +2,7 @@
   "name": "yeoboya-workflow",
   "version": "2.1.0",
   "description": "앱팀 공통 개발 워크플로우 플러그인 (Android / iOS)",
-  "skills": [
-    { "name": "onboard",  "path": "skills/onboard/SKILL.md" },
-    { "name": "feature",  "path": "skills/feature/SKILL.md" },
-    { "name": "bugfix",   "path": "skills/bugfix/SKILL.md" },
-    { "name": "phase",    "path": "skills/phase/SKILL.md" }
-  ],
-  "agents": [
-    { "name": "writer",   "path": "agents/writer.md" },
-    { "name": "reviewer", "path": "agents/reviewer.md" }
-  ],
-  "dependencies": [
-    {
-      "plugin": "superpowers",
-      "source": "claude-plugins-official",
-      "version": "latest"
-    }
-  ]
+  "author": {
+    "name": "yeoboya"
+  }
 }
