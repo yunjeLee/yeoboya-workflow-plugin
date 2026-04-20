@@ -48,6 +48,7 @@ Phase 실행 시작 시 아래 목록을 초기화한다:
 - 성공 Task 목록: []
 - 수동 처리 필요 Task 목록: []  ← 테스트 실패 후 "다음 Task 진행" 선택한 Task
 - 중단 Task 목록: []              ← 테스트 실패 후 "Phase 중단" 선택한 Task
+- BASE_SHA: `git rev-parse HEAD` 결과 저장 (Step 4 코드 리뷰의 SHA 범위 산출용)
 
 각 Task에 대해 아래 순서를 따른다.
 
@@ -79,7 +80,9 @@ Task [Task 이름] 테스트 실패
   3 → Phase 중단 (plan.md 업데이트 안 함)
 ```
 
-- `1` 응답: `superpowers:systematic-debugging` 스킬을 호출해 원인 분석 후 수정. 재테스트 성공 시 성공 Task 목록에 추가, 실패 시 다시 처리 방향을 묻는다.
+- `1` 응답: `superpowers:systematic-debugging` 스킬을 호출해 원인 분석 후 수정. 재테스트 **1 회**만 실행한다.
+  - PASS → 성공 Task 목록에 추가, 다음 Task 진행.
+  - FAIL → 더 이상 재시도하지 않는다. `2` (수동 처리 기록 후 다음 Task) 또는 `3` (Phase 중단) 중 선택하도록 다시 묻는다. 이때 `1` 은 선택지에서 제외한다. auto-fix-loop 제거 취지와 정합.
 - `2` 응답: 이 Task 를 "수동 처리 필요 Task 목록" 에 기록하고 다음 Task 로 진행.
 - `3` 응답: 이 Task 를 "중단 Task 목록" 에 기록하고 실행을 즉시 중단. Step 4 (plan.md 업데이트) 를 건너뛴다.
 
@@ -89,8 +92,32 @@ Task [Task 이름] 테스트 실패
 
 Phase 내 모든 Task 실행 완료 후 `reviewer` 에이전트를 디스패치한다.
 
-reviewer 에이전트가 `superpowers:requesting-code-review` 스킬을 통해 이번 Phase에서 변경된 코드를 검토한다.
-리뷰 결과 수신 후 `superpowers:receiving-code-review` 스킬로 수정 사항을 처리한다.
+### 4-1. SHA 범위 계산
+
+- `BASE_SHA`: Step 3 시작 시 저장한 `git rev-parse HEAD` 결과
+- `HEAD_SHA`: 이 Step 진입 시점의 `git rev-parse HEAD` 결과
+
+두 값이 같으면 Phase 내 실제 커밋이 없다는 뜻이므로 리뷰를 생략하고 Step 5 로 진행한다.
+
+### 4-2. reviewer 디스패치
+
+`reviewer` 에이전트를 디스패치한다. 에이전트는 `superpowers:requesting-code-review` 스킬로 `BASE_SHA..HEAD_SHA` 범위의 diff 를 검토하고 결과만 반환한다. 에이전트는 파일을 직접 수정하지 않는다.
+
+### 4-3. 리뷰 결과 처리 (메인 세션)
+
+reviewer 가 반환한 결과는 메인 세션에서 `superpowers:receiving-code-review` 스킬 절차로 처리한다.
+
+1. **READ** — 전체 피드백을 끝까지 읽는다.
+2. **UNDERSTAND** — 각 항목을 재구성한다. 불명확하면 먼저 질문한다.
+3. **VERIFY** — 코드베이스 실제 상태와 대조한다.
+4. **EVALUATE** — 프로젝트 맥락에서 기술적으로 타당한지 판단한다.
+5. **CONFIRM** — 수정 항목 목록을 사용자에게 보여주고 승인받는다.
+6. **RESPOND** — 기술적 확인 또는 근거 있는 반박.
+7. **IMPLEMENT** — 항목 하나씩 테스트 후 진행.
+
+수정 우선순위: Critical (즉시) > Important (다음 작업 전) > Minor (추후 과제).
+
+수정 완료 응답은 "Fixed. [변경 내용]" 형태로 남기고, "You're absolutely right!" 같은 감사 표현은 쓰지 않는다. 코드 자체가 반영 증거다.
 
 ---
 

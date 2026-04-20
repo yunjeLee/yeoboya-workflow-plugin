@@ -141,6 +141,8 @@ git clone https://github.com/yeoboya/yeoboya-workflow-plugin
 
 ## CLAUDE.md 연동 권장
 
+> **주의**: 아래 템플릿은 **수동 편집 참고용**입니다. `/onboard` 실행 시 자동 생성되는 CLAUDE.md 와 별개이며, /onboard 를 쓰는 경우 수동 추가 없이 그대로 사용하면 됩니다.
+
 이 플러그인은 프로젝트 루트의 `CLAUDE.md` 에 팀 컨벤션이 정의되어 있을 때 더 정확하게 동작합니다.
 아래 항목을 `CLAUDE.md` 에 추가하는 것을 권장합니다.
 
@@ -151,3 +153,9 @@ git clone https://github.com/yeoboya/yeoboya-workflow-plugin
 - 테스트: JUnit + Mockk (Android), XCTest (iOS)
 - 코드 스타일: [팀 컨벤션 링크]
 ```
+
+---
+
+## 향후 개선 (TODO)
+
+- **Hooks 기반 강제 장치**: `context-manager.md` 의 ②(50%) / ③(이탈) 권장 규칙을 Claude Code 의 `SessionStart` / `Stop` / `PreToolUse` hook 으로 자동화한다. 별도 `/feature` 로 spec 작성 후 진행 예정.

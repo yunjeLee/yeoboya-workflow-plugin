@@ -62,6 +62,8 @@ description: "버그 설명, 에러 로그, 스크린샷 또는 텍스트 설명
 **단순 수정** (1~2개 파일, 명확한 원인):
 → Step 3-A-3으로 바로 진행한다.
 
+> **복잡도 재판정**: 수정 중 3 번째 파일을 건드려야 하는 상황이 발생하면 즉시 작업을 중단하고 `superpowers:writing-plans` 로 전환해 복잡한 수정 경로로 재진입한다.
+
 **복잡한 수정** (3개 이상 파일, 여러 레이어에 걸침):
 → `superpowers:writing-plans` 스킬을 호출해 수정 계획을 작성한다.
 → `shared/workflow.md`를 Read tool로 읽고 **계획 저장 및 실행 안내** 섹션의 지침을 따른다.
@@ -110,13 +112,19 @@ func test_버그재현_증상설명() {
 ```
 
 ### 3-B-3. 수정 후 시각적 검증
-수정 후 스냅샷을 갱신하고 변경 전/후를 비교한다.
+
+**순서 중요.** 수정 직후 곧바로 record 를 실행하면 버그 상태가 새 baseline 으로 승격될 위험이 있다. 아래 순서를 지킨다.
+
+1. 수정 후 테스트를 실행만 하고 record 는 하지 않는다. (Paparazzi / swift-snapshot-testing 모두 verify 모드가 기본)
+2. 실패한 스냅샷의 diff 이미지를 육안으로 확인한다. 의도한 수정 결과가 맞는지 판단한다.
+3. 사용자에게 "이 결과로 baseline 을 갱신할까요? (y / n)" 확인한다.
+4. `y` 응답 시에만 아래 record 명령을 실행한다.
 
 ```bash
-# Android: 스냅샷 갱신
+# Android: 스냅샷 갱신 (3번 단계 승인 후)
 ./gradlew recordPaparazziDebug
 
-# iOS: 스냅샷 갱신
+# iOS: 스냅샷 갱신 (3번 단계 승인 후)
 swift test --filter SnapshotTests -- -record
 ```
 
