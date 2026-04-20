@@ -23,7 +23,7 @@ Phase 완료 시 프로젝트 루트에 저장한다.
 
 ```json
 {
-  "currentSkill": "feature|bugfix|migration|new-app",
+  "currentSkill": "feature|bugfix",
   "completedPhase": "brainstorming|writing-plans|task-N",
   "nextPhase": "writing-plans|task-N|task-N+1|done",
   "platform": "Android|iOS",
@@ -69,10 +69,7 @@ compact가 발생하면 작업 품질이 저하될 수 있습니다.
 
 판단 기준 (Claude가 의미적으로 판단):
 - 현재 /feature 진행 중 → 버그 수정 요청 감지 → /bugfix 권장
-- 현재 /feature 진행 중 → 마이그레이션 요청 감지 → /migration 권장
 - 현재 /bugfix 진행 중 → 신규 기능 요청 감지 → /feature 권장
-- 세 기능 이상의 영향 범위 변경 감지 → /migration 권장
-- /new-app은 "완전히 새로운 프로젝트 생성" 요청 시에만 권장
 - 같은 feature 범위 내 요청은 현재 세션 유지 (예: "로그인 UI 추가" → "로그인 검증 로직 추가")
 - 판단이 불확실하면 권장하지 않고 현재 세션 유지
 

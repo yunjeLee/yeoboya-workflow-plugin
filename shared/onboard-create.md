@@ -357,7 +357,7 @@ docs/UI_GUIDE.md 를 생성할까요? [y/N]
 /feature <기획서 PDF 또는 설명>
 → 기획서 분석 → brainstorming → feature-plan.md 생성
 → /phase 1 → /phase 2 → ... 단계별 실행
-  (각 Task: subagent writer + auto-fix 루프, Phase 완료 후 reviewer)
+  (각 Task: subagent writer + 테스트 1 회, Phase 완료 후 reviewer)
 
 ### 버그 수정
 /bugfix <에러 로그 / 설명 / 스크린샷>
@@ -365,18 +365,8 @@ docs/UI_GUIDE.md 를 생성할까요? [y/N]
 → 로직: systematic-debugging → 복잡도 판단 → TDD 수정
 → UI: 영향 컴포넌트 특정 → 스냅샷 테스트 → 시각 검증
 
-### 마이그레이션
-/migration <전환할 것>
-예: "SharedPreferences 를 DataStore 로"
-→ 위험 분석 → migration-plan.md → /phase 단계별 실행
-
-### 신규 앱
-/new-app
-→ 플랫폼 / 아키텍처 / 디자인 패턴 선택 → 스캐폴딩 → /onboard 자동 실행
-
 ### 보조 도구
 - /phase: plan.md 를 단계별로 실행
-- /auto-fix: 테스트 실패 시 자동 수정 루프
 
 ## 규칙
 - 모든 스킬은 docs/ 가드레일을 읽고 동작 (CLAUDE.md 의 @ 참조)

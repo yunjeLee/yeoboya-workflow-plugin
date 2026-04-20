@@ -1,6 +1,6 @@
 # 공통 워크플로우
 
-feature, migration, new-app 스킬에서 공통으로 사용하는 흐름이다.
+feature, bugfix 스킬에서 공통으로 사용하는 흐름이다.
 각 스킬은 필요한 섹션을 Read tool로 읽고 지침을 따른다.
 
 ---
@@ -17,7 +17,6 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 
 감지된 플랫폼을 이후 모든 단계에서 사용한다.
 
-> new-app은 신규 프로젝트이므로 이 섹션을 건너뛰고 플랫폼 선택을 직접 받는다.
 
 ---
 
@@ -26,7 +25,7 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 `superpowers:writing-plans` 완료 후 계획을 파일로 저장한다.
 
 **파일명 규칙:**
-- 기본: `{skill}-plan.md` (예: `feature-plan.md`, `migration-plan.md`, `new-app-plan.md`)
+- 기본: `{skill}-plan.md` (예: `feature-plan.md`)
 - 이미 존재하면: `{skill}-plan-YYYYMMDD.md` (오늘 날짜)
 
 저장 완료 후 아래 메시지를 출력한다:
@@ -41,7 +40,7 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 
 ## 하네스 문서 부재 감지
 
-**이 섹션은 `/feature`, `/bugfix`, `/migration` 스킬 진입 초반에 실행된다. `/new-app` 과 `/onboard` 는 이 섹션을 건너뛴다 (순환 방지).**
+**이 섹션은 `/feature`, `/bugfix` 스킬 진입 초반에 실행된다. `/onboard` 는 이 섹션을 건너뛴다 (순환 방지).**
 
 ### 검사 대상 — 핵심 문서 세트 (4 종)
 
