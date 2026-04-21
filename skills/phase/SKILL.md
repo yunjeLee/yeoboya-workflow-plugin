@@ -13,6 +13,12 @@ description: "plan.md를 읽어 지정한 Phase를 실행한다. /phase 1, /phas
 
 ---
 
+## Step 0: 컨텍스트 관리 규칙 로드 (필수)
+
+`shared/context-manager.md` 를 Read tool 로 읽는다. 이후 이 skill 이 진행되는 동안 발생하는 모든 **Phase 전환** 과 **작업 이탈 감지** 는 해당 문서의 "필수" 규칙(①, ③)에 따라 처리한다. 생략 불가.
+
+---
+
 ## Step 1: plan.md 탐색
 
 현재 작업 디렉토리 루트에서 아래 순서로 파일을 탐색한다.

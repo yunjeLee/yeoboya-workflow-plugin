@@ -18,19 +18,25 @@ description: "버그 설명, 에러 로그, 스크린샷 또는 텍스트 설명
 
 ---
 
-## Step 0: 작업 격리 (선택)
+## Step 0: 컨텍스트 관리 규칙 로드 (필수)
+
+`shared/context-manager.md` 를 Read tool 로 읽는다. 이후 이 skill 이 진행되는 동안 발생하는 모든 **Phase 전환** 과 **작업 이탈 감지** 는 해당 문서의 "필수" 규칙(①, ③)에 따라 처리한다. 생략 불가.
+
+---
+
+## Step 1: 작업 격리 (선택)
 
 브랜치 격리가 필요하다면 `superpowers:using-git-worktrees` 스킬을 먼저 호출한다.
 
 ---
 
-## Step 1: 플랫폼 자동 감지
+## Step 2: 플랫폼 자동 감지
 
 `shared/workflow.md`를 Read tool로 읽고 **플랫폼 자동 감지** 섹션의 지침을 따른다.
 
 ---
 
-## Step 2: 버그 유형 분류
+## Step 3: 버그 유형 분류
 
 입력된 버그 설명을 분석해 유형을 판별한다.
 
@@ -50,17 +56,17 @@ description: "버그 설명, 에러 로그, 스크린샷 또는 텍스트 설명
 
 ---
 
-## Step 3-A: 로직 / 크래시 버그 수정 플로우
+## Step 4-A: 로직 / 크래시 버그 수정 플로우
 
-### 3-A-1. 원인 분석
+### 4-A-1. 원인 분석
 `superpowers:systematic-debugging` 스킬을 호출한다.
 
-### 3-A-2. 복잡도 판단
+### 4-A-2. 복잡도 판단
 
 원인 분석 결과를 바탕으로 수정 범위를 확인한다.
 
 **단순 수정** (1~2개 파일, 명확한 원인):
-→ Step 3-A-3으로 바로 진행한다.
+→ Step 4-A-3으로 바로 진행한다.
 
 > **복잡도 재판정**: 수정 중 3 번째 파일을 건드려야 하는 상황이 발생하면 즉시 작업을 중단하고 `superpowers:writing-plans` 로 전환해 복잡한 수정 경로로 재진입한다.
 
@@ -68,7 +74,7 @@ description: "버그 설명, 에러 로그, 스크린샷 또는 텍스트 설명
 → `superpowers:writing-plans` 스킬을 호출해 수정 계획을 작성한다.
 → `shared/workflow.md`를 Read tool로 읽고 **계획 저장 및 실행 안내** 섹션의 지침을 따른다.
 
-### 3-A-3. 테스트로 재현 후 수정
+### 4-A-3. 테스트로 재현 후 수정
 `superpowers:test-driven-development` 스킬을 호출한다.
 - 버그를 재현하는 실패 테스트를 먼저 작성한다.
 - 테스트를 통과하는 최소 수정을 적용한다.
@@ -77,19 +83,19 @@ description: "버그 설명, 에러 로그, 스크린샷 또는 텍스트 설명
 - Android: `./gradlew test`
 - iOS: `xcodebuild test -scheme <SchemeName> -destination 'platform=iOS Simulator,name=iPhone 15'`
 
-### 3-A-4. 검증
+### 4-A-4. 검증
 `superpowers:verification-before-completion` 스킬을 호출한다.
 
 ---
 
-## Step 3-B: UI 버그 수정 플로우
+## Step 4-B: UI 버그 수정 플로우
 
-### 3-B-1. 영향 범위 특정
+### 4-B-1. 영향 범위 특정
 버그가 발생하는 컴포넌트를 특정한다.
 - Android: 영향받는 Composable 함수명 및 파일 경로
 - iOS: 영향받는 View / ViewController 및 파일 경로
 
-### 3-B-2. 스냅샷 테스트로 재현
+### 4-B-2. 스냅샷 테스트로 재현
 플랫폼별 스냅샷 테스트 도구로 버그 상태를 캡처한다.
 
 **Android (Paparazzi):**
@@ -111,7 +117,7 @@ func test_버그재현_증상설명() {
 }
 ```
 
-### 3-B-3. 수정 후 시각적 검증
+### 4-B-3. 수정 후 시각적 검증
 
 **순서 중요.** 수정 직후 곧바로 record 를 실행하면 버그 상태가 새 baseline 으로 승격될 위험이 있다. 아래 순서를 지킨다.
 
@@ -128,12 +134,12 @@ func test_버그재현_증상설명() {
 swift test --filter SnapshotTests -- -record
 ```
 
-### 3-B-4. 검증
+### 4-B-4. 검증
 `superpowers:verification-before-completion` 스킬을 호출한다.
 
 ---
 
-## Step 4: 브랜치 마무리
+## Step 5: 브랜치 마무리
 
 수정이 완료되면 `superpowers:finishing-a-development-branch` 스킬을 호출한다.
 
