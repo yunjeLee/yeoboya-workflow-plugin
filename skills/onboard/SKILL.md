@@ -1,6 +1,7 @@
 ---
 name: onboard
 description: "Claude Code 를 프로젝트에 처음 연결할 때 하네스 문서 세트(CLAUDE.md + docs/)를 자동 생성하거나, 이미 세팅된 레포에서는 신규 팀원에게 프로젝트 구조를 브리핑한다. /onboard, 프로젝트 연결, 하네스 세팅, 온보딩, 신규 팀원 합류, claude code 처음 사용 요청 시 반드시 사용한다."
+model: opus
 ---
 
 # Onboard Skill — 하네스 기반 프로젝트 온보딩
