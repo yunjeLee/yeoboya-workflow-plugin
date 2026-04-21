@@ -4,18 +4,20 @@
 
 ## 규칙
 
-1. **Case 2 에서는 기존 파일을 절대 수정하지 않는다.** 누락된 파일만 생성한다. 아래 6 개 섹션 중 해당 파일이 이미 존재하면 그 섹션은 건너뛴다.
+1. **Case 2 에서는 기존 파일을 절대 수정하지 않는다.** 누락된 파일만 생성한다. 아래 8 개 섹션 중 해당 파일이 이미 존재하면 그 섹션은 건너뛴다.
 2. 각 파일은 아래 섹션의 생성 전략을 따른다.
 3. 생성 불가능하거나 입력이 부족한 항목은 `[TBD]` 플레이스홀더로 남긴다. 임의 값으로 채우지 않는다.
-4. **섹션 번호(1~6)는 문서 설명 순서이며, 실제 파일 저장 순서는 아래 목록과 다르다.** 저장 순서를 반드시 따른다 — CLAUDE.md 가 docs/ 를 `@` 참조하므로 docs/ 전체를 먼저 저장하고 CLAUDE.md 를 마지막에 저장한다.
+4. **섹션 번호(1~8)는 문서 설명 순서이며, 실제 파일 저장 순서는 아래 목록과 다르다.** 저장 순서를 반드시 따른다 — CLAUDE.md 가 docs/ 를 `@` 참조하므로 docs/ 전체를 먼저 저장하고 CLAUDE.md 를 마지막에 저장한다.
 
 생성 순서 (실제 파일 저장 순):
 1. `docs/PRD.md` (대화형)
 2. `docs/ARCHITECTURE.md` (자동 스캔)
 3. `docs/ADR.md` (반자동)
 4. `docs/UI_GUIDE.md` (조건부)
-5. `docs/WORKFLOW.md` (정적 템플릿)
-6. `CLAUDE.md` (스캔 + 대화, docs/ 를 `@` 로 참조)
+5. `docs/TESTING.md` (대화형)
+6. `docs/CONVENTIONS.md` (대화형)
+7. `docs/WORKFLOW.md` (정적 템플릿)
+8. `CLAUDE.md` (스캔 + 대화, docs/ 를 `@` 로 참조)
 
 ---
 
@@ -48,7 +50,7 @@
 [CRITICAL 규칙]
 이 프로젝트에 구조적으로 절대 위반하면 안 되는 규칙이 있다면 선택하거나 직접 입력해주세요.
 
-레포 스캔 결과 (가정):
+레포 스캔 결과 (추정):
   {모듈 목록 / 주요 라이브러리 요약}
 
 아래 중 가깝거나 직접 입력해주세요:
@@ -122,12 +124,9 @@
 - 장황한 이론보다 실무 적용 중심 설명
 ```
 
-**5. 팀 컨벤션 수집**
+**5. 파일 작성 — 아래 템플릿 사용**
 
-- `~/.claude/CLAUDE.md` 참고 동의한 경우: 해당 파일의 "팀 컨벤션", "사용 라이브러리" 섹션에서 발췌
-- 아니면: 레포 설정 파일에서 추출 가능한 값(linter 규칙, 커밋 컨벤션 등) + 대화로 누락 항목 수집
-
-**6. 파일 작성 — 아래 템플릿 사용**
+> 팀 컨벤션 / 작업 규칙 / 사용 라이브러리 등은 `docs/CONVENTIONS.md` 에서 수집한다. CLAUDE.md 는 `@` 참조로 위임한다. `~/.claude/CLAUDE.md` 참고에 동의한 경우 해당 파일의 "피해야 할 것", "팀 컨벤션", "리팩토링 원칙", "우선순위" 등을 **섹션 8 (CONVENTIONS 생성)** 의 예시 생성에 활용한다.
 
 ```markdown
 # 프로젝트: {프로젝트명}
@@ -144,6 +143,12 @@
 ## 디자인 가이드
 @docs/UI_GUIDE.md
 
+## 테스트 전략
+@docs/TESTING.md
+
+## 팀 컨벤션 / 작업 규칙
+@docs/CONVENTIONS.md
+
 ## CRITICAL 규칙
 {2번에서 수집된 CRITICAL 규칙 리스트}
 
@@ -152,9 +157,6 @@
 
 ## Claude Code 응답 규칙
 {4번에서 최종 확정된 리스트}
-
-## 팀 컨벤션
-{5번에서 수집된 리스트}
 ```
 
 ---
@@ -322,7 +324,7 @@
 ```
 [질문 N] {질문 내용}
 
-레포 스캔 결과 (가정):
+레포 스캔 결과 (추정):
   {해당 질문에 쓴 스캔 소스 요약}
 
 아래 중 가깝거나 직접 입력해주세요:
@@ -415,7 +417,7 @@ docs/UI_GUIDE.md 를 생성할까요? [y/N]
 ```
 [디자인 원칙 1~3 개]
 
-레포 스캔 결과 (가정):
+레포 스캔 결과 (추정):
   - 색상 시스템: {Material3 / 커스텀 팔레트 / 단색 기반 등}
   - typography: {MaterialTypography / 커스텀 등}
   - shape: {rounded 수준}
@@ -522,6 +524,253 @@ docs/UI_GUIDE.md 를 생성할까요? [y/N]
 
 ---
 
+## 7. docs/TESTING.md 생성 (대화형, 예시 생성형)
+
+### 사전 스캔
+
+질문 시작 전 아래 소스를 Read / Glob / Bash 로 확인한다. 결과는 질문별 예시 생성에 사용한다.
+
+| 소스 | 용도 |
+|------|------|
+| `src/test/**/*.kt`, `src/androidTest/**/*.kt` (Android) | 테스트 디렉토리 존재 및 샘플 파일 |
+| `Tests/**/*.swift`, `*Tests/**/*.swift` (iOS) | iOS 테스트 파일 |
+| `libs.versions.toml`, `build.gradle(.kts)` | JUnit, MockK, Turbine, Espresso 등 감지 |
+| `Package.swift`, `Podfile` | XCTest, Nimble, Quick 등 감지 |
+| `.github/workflows/*.yml`, `Jenkinsfile`, `bitrise.yml` | CI 에서 테스트 실행 여부 |
+
+### 4 개 질문 순차 진행
+
+각 질문은 섹션 4 (PRD) 의 **공통 출력 형식** 을 따른다 (레포 스캔 결과 (추정) → 예시 매칭 → 선택 또는 직접 입력, 건너뛰기 시 `[TBD]`).
+
+| # | 질문 | 예시 생성 소스 |
+|---|------|------------|
+| 1 | 테스트 레벨 | `src/test`, `androidTest` 존재 여부, Room/Realm 감지 |
+| 2 | 테스트 네이밍 규칙 | 기존 테스트 파일 샘플 1~2 개 추출 |
+| 3 | 커버리지 목표 | 일반 템플릿 (없음 / domain 80% / 전체 60%) |
+| 4 | CI 연동 | `.github/workflows`, `Jenkinsfile`, `bitrise.yml` |
+
+**질문 1 예시 (테스트 레벨):**
+- 1) unit 만 (ViewModel / UseCase / Mapper)  (매칭: `src/test` 있음, `androidTest` 없음)
+- 2) unit + integration (DB / Repository 포함)  (매칭: Room 또는 Realm 감지)
+- 3) unit + instrumented (기기 테스트 포함)  (매칭: `androidTest` 있음)
+- 4) 없음 (점진 도입 예정)  (매칭: 테스트 디렉토리 없음)
+
+**질문 2 예시 (네이밍 규칙):**
+- 1) BDD (`given_when_then`)  (매칭: 기존 샘플에서 `given_when_then` 패턴 감지)
+- 2) 한글 백틱 (`` `로그인 성공 시 토큰 저장`() ``)  (매칭: 한글 테스트명 감지)
+- 3) camelCase 서술 (`loginWithValidCreds_returnsToken`)  (매칭: 일반 JUnit 패턴)
+- 4) 직접 입력
+
+**질문 3 예시 (커버리지):**
+- 1) 없음 — 중요한 비즈니스 로직만 우선 (일반 템플릿)
+- 2) domain 계층 80% + ViewModel 70% (일반 템플릿)
+- 3) 전체 라인 60% (일반 템플릿)
+- 4) 직접 입력
+- 5) [TBD]
+
+**질문 4 예시 (CI 연동):**
+- 1) 모든 PR 에서 전체 테스트  (매칭: `.github/workflows` 에 `test` 스텝 감지)
+- 2) PR 에서 unit 만, main 머지 시 전체  (일반 템플릿)
+- 3) 로컬만 (CI 없음)  (매칭: CI 파일 없음)
+- 4) 직접 입력
+- 5) [TBD]
+
+### 사용 라이브러리 자동 수집
+
+`build.gradle(.kts)`, `libs.versions.toml`, `Podfile`, `Package.swift` 에서 감지된 테스트 관련 라이브러리 목록을 자동 추출한다 (JUnit, MockK, Turbine, Espresso, XCTest, Nimble, Quick 등).
+
+### 출력 템플릿
+
+```markdown
+# 테스트 전략
+
+## 테스트 레벨
+{질문 1 답변 또는 [TBD]}
+
+## 네이밍 규칙
+{질문 2 답변 또는 [TBD]}
+
+예시:
+{기존 샘플 1 줄 또는 선택된 네이밍 규칙 예시 1 줄}
+
+## 커버리지 목표
+{질문 3 답변 또는 [TBD]}
+
+## CI 연동
+{질문 4 답변 또는 [TBD]}
+
+## 사용 라이브러리
+{자동 스캔 결과 목록 또는 [TBD]}
+```
+
+### 전부 건너뛰기 시
+
+파일 최상단에 주석 추가:
+```
+<!-- 이 파일은 아직 채워지지 않았습니다. /onboard 를 다시 실행하거나 직접 편집하세요. -->
+```
+
+---
+
+## 8. docs/CONVENTIONS.md 생성 (대화형, 예시 생성형)
+
+팀의 **코드 스타일 / 에러 처리 / Claude 작업 스코프 / 커밋·push 정책** 을 한 파일에 통합 수집한다. 4 개 sub-topic 으로 구성되며 순차 진행한다.
+
+### 사전 스캔
+
+| 소스 | 용도 |
+|------|------|
+| `.editorconfig`, `detekt.yml`, `ktlint` 설정, `.swiftlint.yml`, `.swiftformat` | 린터/포맷터 감지 |
+| 기존 모듈 내 interface/class 네이밍 샘플 | 네이밍 패턴 추출 |
+| `sealed class Result`, `sealed interface Result` Grep | Result 패턴 감지 |
+| `arrow-kt` 의존성 | Either 함수형 감지 |
+| `Timber`, `Log.d`, `os_log`, `SwiftLog` Grep | 로깅 라이브러리 감지 |
+| `git log --oneline -20` | 최근 커밋 메시지 패턴 |
+| `.github/PULL_REQUEST_TEMPLATE.md`, `.github/CODEOWNERS` | PR 정책 단서 |
+| `~/.claude/CLAUDE.md` (참고 동의 시) | "팀 컨벤션", "피해야 할 것", "리팩토링 원칙" 섹션 |
+
+### Sub-topic 1: 기본 코드 스타일 (네이밍 / 린터)
+
+**공통 출력 형식 예시:**
+```
+[컨벤션 1/4] 기본 코드 스타일 / 네이밍 규칙은?
+
+레포 스캔 결과 (추정):
+  - 린터 설정: {ktlint / detekt / swiftlint / 없음}
+  - .editorconfig: {있음/없음}
+  - 감지된 interface 패턴: {접미사 없음 / `I` 접두사 / `Impl` 접미사}
+
+아래 중 가깝거나 직접 입력해주세요:
+  1) 린터 설정에 전부 위임 (별도 규칙 없음)  (매칭: ktlint / detekt / swiftlint 설정 감지)
+  2) interface 접미사 없음, implementation 은 `Impl`  (매칭: 기존 코드 패턴)
+  3) interface 는 `Xxxable`, class 는 명사  (일반 템플릿)
+  4) 직접 입력
+  5) [TBD]
+```
+
+### Sub-topic 2: 에러 처리 / 로깅
+
+두 개 질문을 연속 진행 (2/4, 2-2/4).
+
+**에러 처리 질문:**
+```
+[컨벤션 2/4] 에러 처리 방침은?
+
+레포 스캔 결과 (추정):
+  - sealed class Result 사용: {있음/없음}
+  - arrow-kt Either 사용: {있음/없음}
+
+아래 중:
+  1) sealed Result<Success, Error> — 도메인 에러는 Result, 시스템 오류만 throw  (매칭: sealed Result 감지)
+  2) Either<Error, Success> 함수형 접근  (매칭: arrow-kt 감지)
+  3) try-catch 최소화, 경계 레이어에서만  (일반 템플릿)
+  4) runCatching 래퍼로 통일  (일반 템플릿)
+  5) 직접 입력
+  6) [TBD]
+```
+
+**로깅 질문:**
+```
+[컨벤션 2-2/4] 로깅 방침은?
+
+레포 스캔 결과 (추정):
+  - 감지된 로깅 라이브러리: {Timber / Log.d / os_log / SwiftLog / 없음}
+
+아래 중:
+  1) Timber only, Log.d 직접 호출 금지  (매칭: Timber 감지)
+  2) os_log + signpost  (매칭: iOS)
+  3) SwiftLog  (매칭: iOS SwiftLog 감지)
+  4) 표준 Log.d / print 사용  (일반 템플릿)
+  5) 직접 입력
+  6) [TBD]
+```
+
+### Sub-topic 3: Claude 작업 스코프 / 리팩토링 허용 범위
+
+**스캔 없음, 일반 템플릿만 제공:**
+```
+[컨벤션 3/4] Claude 가 작업할 때 어디까지 손대도 되나?
+
+(일반 템플릿)
+
+아래 중 가깝거나 직접 입력해주세요:
+  1) 요청한 파일 + 직접 호출자만 수정. 주변 리팩토링은 별도 PR
+  2) 버그 수정 시 같은 파일 내 유사 문제도 함께 수정, 다른 파일은 별도 작업
+  3) 발견한 문제는 전부 수정, 큰 변경은 plan.md 로 분리
+  4) 요청 범위 엄격 준수 — 타 파일 수정 시 반드시 사용자 승인
+  5) 직접 입력
+  6) [TBD]
+```
+
+### Sub-topic 4: 커밋 / Push 정책
+
+두 개 질문을 연속 진행 (4/4, 4-2/4).
+
+**커밋 메시지 질문:**
+```
+[컨벤션 4/4] 커밋 메시지 컨벤션은?
+
+레포 스캔 결과 (추정):
+  - 최근 20 개 커밋 메시지 패턴: {Conventional Commits / 한 줄 요약 / 자유 형식 / 한글}
+
+아래 중:
+  1) Conventional Commits (feat / fix / refactor / chore / docs 등)  (매칭: 최근 커밋 `feat:` / `fix:` 감지)
+  2) 한 줄 요약 + 빈 줄 + 본문  (일반 템플릿)
+  3) 자유 형식  (매칭: 패턴 감지 안 됨)
+  4) 직접 입력
+  5) [TBD]
+```
+
+**Push 정책 질문:**
+```
+[컨벤션 4-2/4] Push 정책은?
+
+레포 스캔 결과 (추정):
+  - .github/CODEOWNERS: {있음/없음}
+  - .github/PULL_REQUEST_TEMPLATE.md: {있음/없음}
+
+아래 중:
+  1) master/main 직접 push 금지, PR 필수
+  2) 개인 브랜치 push OK, main 은 PR 만
+  3) Claude 는 commit 까지, push 는 사용자만
+  4) 자유 (Claude 가 직접 push 가능)
+  5) 직접 입력
+  6) [TBD]
+```
+
+### 출력 템플릿
+
+```markdown
+# 팀 컨벤션 / 작업 규칙
+
+## 기본 코드 스타일
+{sub-topic 1 답변 또는 [TBD]}
+
+## 에러 처리
+{sub-topic 2 에러 처리 답변 또는 [TBD]}
+
+## 로깅
+{sub-topic 2 로깅 답변 또는 [TBD]}
+
+## Claude 작업 스코프
+{sub-topic 3 답변 또는 [TBD]}
+
+## 커밋 메시지
+{sub-topic 4 커밋 답변 또는 [TBD]}
+
+## Push 정책
+{sub-topic 4 push 답변 또는 [TBD]}
+```
+
+### 전부 건너뛰기 시
+
+파일 최상단에 주석 추가:
+```
+<!-- 이 파일은 아직 채워지지 않았습니다. /onboard 를 다시 실행하거나 직접 편집하세요. -->
+```
+
+---
+
 ## 생성 완료 후
 
 아래 리포트를 출력한다:
@@ -535,6 +784,8 @@ docs/UI_GUIDE.md 를 생성할까요? [y/N]
   - docs/ARCHITECTURE.md
   - docs/ADR.md
   - docs/UI_GUIDE.md (또는 생략)
+  - docs/TESTING.md
+  - docs/CONVENTIONS.md
   - docs/WORKFLOW.md
 - 스킵 파일 (이미 존재): {Case 2 에서만 해당}
 
@@ -545,4 +796,4 @@ docs/UI_GUIDE.md 를 생성할까요? [y/N]
 이후 /feature, /bugfix 등을 실행하면 자동으로 하네스 가드레일이 적용됩니다.
 ```
 
-> `{생성 파일 목록}` 은 런타임에 실제로 생성된 파일 경로들(예: `CLAUDE.md docs/PRD.md docs/ARCHITECTURE.md docs/ADR.md docs/WORKFLOW.md`) 로 Claude 가 치환해 출력한다.
+> `{생성 파일 목록}` 은 런타임에 실제로 생성된 파일 경로들(예: `CLAUDE.md docs/PRD.md docs/ARCHITECTURE.md docs/ADR.md docs/TESTING.md docs/CONVENTIONS.md docs/WORKFLOW.md`) 로 Claude 가 치환해 출력한다.

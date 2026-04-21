@@ -13,6 +13,8 @@
 - `docs/ARCHITECTURE.md`
 - `docs/ADR.md`
 - `docs/UI_GUIDE.md` (존재 시)
+- `docs/TESTING.md`
+- `docs/CONVENTIONS.md`
 - `docs/WORKFLOW.md`
 
 Case 2 에서 **이번 onboard 실행으로 새로 생성한 파일만** 검증 대상으로 한다. 기존 파일은 건드리지 않는 원칙을 유지한다.
@@ -98,6 +100,10 @@ Case 2 에서 **이번 onboard 실행으로 새로 생성한 파일만** 검증 
 | docs/ADR.md 전 항목의 `이유` / `트레이드오프` 가 [TBD] | 결정 근거 부재 | WARNING |
 | docs/PRD.md 의 개별 필드 [TBD] | 나중에 채우면 됨 | INFO |
 | docs/UI_GUIDE.md `원칙` [TBD] | 스캔 성공했는데 비움 | WARNING |
+| docs/TESTING.md 전체 [TBD] | 테스트 방침 미정 | INFO |
+| docs/TESTING.md `테스트 레벨` + `CI 연동` 모두 [TBD] | 테스트 실행 방식 불명 | WARNING |
+| docs/CONVENTIONS.md `Claude 작업 스코프` [TBD] | Claude 실수 방지 규칙 부재 | **WARNING** |
+| docs/CONVENTIONS.md 기타 필드 [TBD] | 나중에 채우면 됨 | INFO |
 
 **권장 수정 포맷**:
 ```
