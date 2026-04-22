@@ -42,13 +42,15 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 
 **이 섹션은 `/feature`, `/bugfix` 스킬 진입 초반에 실행된다. `/onboard` 는 이 섹션을 건너뛴다 (순환 방지).**
 
-### 검사 대상 — 핵심 문서 세트 (4 종)
+### 검사 대상 — 핵심 문서 세트 (6 종)
 
 프로젝트 루트에 아래 파일이 존재하는지 확인한다:
 - `CLAUDE.md`
 - `docs/PRD.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ADR.md`
+- `docs/TESTING.md`
+- `docs/CONVENTIONS.md`
 
 ### 분기
 
@@ -67,7 +69,7 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 - `y` → `skills/onboard/SKILL.md` 를 Read tool 로 읽고 지침을 따른 뒤, 완료되면 원래 스킬의 다음 단계로 이어서 진행한다
 - `n` → 경고 한 줄 남기고 원래 스킬 계속 진행
 
-**B. 일부만 있음 (1~3 개)**
+**B. 일부만 있음 (1~5 개)**
 
 ```
 다음 파일이 없습니다: [여기에 실제 누락 파일 경로를 쉼표로 나열]
@@ -78,6 +80,6 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 - `y` → 계속 진행
 - `n` → A 와 동일하게 `skills/onboard/SKILL.md` 를 Read 한 뒤 원래 스킬의 다음 단계로 진행한다
 
-**C. 전부 있음 (4 개)**
+**C. 전부 있음 (6 개)**
 
 조용히 통과. 정상 진입.
