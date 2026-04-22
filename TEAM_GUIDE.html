@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yeoboya-workflow 팀 가이드</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-subtle: #f7f7f8;
+    --border: #e3e3e6;
+    --text: #1a1a1a;
+    --text-muted: #5a5a60;
+    --accent: #1e3a8a;
+    --accent-soft: #eef2ff;
+    --code-bg: #f4f4f6;
+    --code-border: #e0e0e3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a;
+      --bg-subtle: #252526;
+      --border: #3a3a3c;
+      --text: #eaeaea;
+      --text-muted: #a8a8ae;
+      --accent: #8ab4f8;
+      --accent-soft: #1e2a4a;
+      --code-bg: #252526;
+      --code-border: #3a3a3c;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    max-width: 1180px;
+    margin: 0 auto;
+    gap: 48px;
+    padding: 48px 24px 96px;
+  }
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      padding: 24px 16px 64px;
+    }
+    nav.toc {
+      position: static !important;
+      max-height: none !important;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+  }
+  nav.toc {
+    position: sticky;
+    top: 32px;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    font-size: 14px;
+  }
+  nav.toc h3 {
+    margin: 0 0 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  nav.toc ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  nav.toc li { margin-bottom: 2px; }
+  nav.toc a {
+    color: var(--text-muted);
+    text-decoration: none;
+    display: block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    line-height: 1.4;
+  }
+  nav.toc a:hover {
+    background: var(--bg-subtle);
+    color: var(--text);
+  }
+  main { min-width: 0; }
+  h1 {
+    font-size: 34px;
+    line-height: 1.25;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+  }
+  h1 + .subtitle {
+    color: var(--text-muted);
+    font-size: 17px;
+    margin-bottom: 44px;
+  }
+  h2 {
+    font-size: 26px;
+    line-height: 1.3;
+    margin: 64px 0 18px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    letter-spacing: -0.01em;
+  }
+  main > section:first-of-type h2 {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  h3 {
+    font-size: 20px;
+    line-height: 1.4;
+    margin: 36px 0 12px;
+  }
+  h4 {
+    font-size: 17px;
+    line-height: 1.4;
+    margin: 24px 0 10px;
+  }
+  p { margin: 0 0 16px; }
+  strong { font-weight: 600; }
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.92em;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+  }
+  ul, ol { padding-left: 24px; margin: 0 0 16px; }
+  li { margin-bottom: 6px; }
+  a { color: var(--accent); }
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin-bottom: 18px;
+    background: var(--bg);
+  }
+  .card h4 {
+    margin-top: 0;
+    font-size: 18px;
+  }
+  .card-row {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 16px;
+    margin-bottom: 6px;
+    align-items: baseline;
+  }
+  .card-row .label {
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .card-row .content { font-size: 16px; }
+  @media (max-width: 640px) {
+    .card-row { grid-template-columns: 1fr; gap: 2px; }
+  }
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .pillar {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .pillar-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+  .pillar h4 {
+    margin: 0 0 8px;
+    font-size: 17px;
+  }
+  .pillar p {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 14px 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 20px 0;
+    font-size: 16px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--bg-subtle);
+    font-weight: 600;
+  }
+  .mermaid {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    overflow-x: auto;
+  }
+  .faq-q {
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 4px;
+  }
+  .faq-a {
+    color: var(--text);
+    margin-top: 0;
+  }
+  .scenario {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .scenario h4 {
+    margin-top: 0;
+    font-size: 17px;
+  }
+  .scenario-situation {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#intro">1. 이 문서는</a></li>
+      <li><a href="#problem">2. 해결하려는 문제</a></li>
+      <li><a href="#harness">3. 해법: 하네스</a></li>
+      <li><a href="#concept">4. 핵심 기능</a></li>
+      <li><a href="#flow">5. 전체 흐름</a></li>
+      <li><a href="#docs-guide">6. 문서별 작성 가이드</a></li>
+      <li><a href="#scenario">7. 실전 시나리오</a></li>
+      <li><a href="#faq">8. FAQ</a></li>
+      <li><a href="#ref">9. 참고 링크</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <h1>yeoboya-workflow 팀 가이드</h1>
+    <p class="subtitle">팀원이 Claude Code 를 어떻게 쓰든 한 방향으로 수렴시키는 하네스 플러그인 — 개념과 작성 가이드</p>
+
+    <section id="intro">
+      <h2>1. 이 문서는 뭘 위한 건가</h2>
+      <p>
+        이 문서는 <code>yeoboya-workflow-plugin</code> 을 <strong>팀 단위로 쓰는 개발자</strong> 를
+        위한 심화 가이드입니다. README 가 "이 플러그인을 어떻게 설치하고 시작하는지" 를 다룬다면,
+        이 문서는 "<strong>왜 이렇게 만들었고, 각 문서에 뭘 써야 하는지</strong>" 를 다룹니다.
+      </p>
+      <p>
+        전제: Claude Code 를 한두 번이라도 써봤다는 가정. 기본 개념 설명은 생략합니다.
+      </p>
+    </section>
+
+    <section id="problem">
+      <h2>2. 해결하려는 문제</h2>
+
+      <h3>2.1 Context rot — 한 세션에 여러 목적을 섞으면 품질이 무너진다</h3>
+      <p><strong>1 세션 = 1 목적</strong> 원칙이 깨지면 나타나는 증상:</p>
+      <ul>
+        <li>방금 수정한 파일을 또 수정</li>
+        <li>프로젝트에 없는 가상 클래스 호출</li>
+        <li>"쓰지 말자" 고 한 패턴 재제안</li>
+      </ul>
+
+      <h3>2.2 팀원별 사용 편차 — 같은 repo, 다른 품질</h3>
+      <ul>
+        <li>A 팀원: 항상 TDD, 실패 테스트 먼저</li>
+        <li>B 팀원: plan 없이 바로 구현</li>
+        <li>C 팀원: <code>/fix</code> 만, 원인 추적 생략</li>
+      </ul>
+      <p>→ 같은 repo 에 3 가지 결이 섞이고, 코드 리뷰 때마다 같은 지적 반복.</p>
+
+      <h3>2.3 문서화되지 않은 팀 규칙 — 매번 Claude 에게 새로 설명하는 낭비</h3>
+      <p>
+        "에러는 Result 로 감싼다", "Card 는 elevation 0 + rounded 12dp" 같은 규칙이 머릿속에만 있으면
+        Claude 는 세션마다 새로 추론하고 자주 엇나간다.
+      </p>
+
+      <div class="callout">
+        <p>이 3 가지 문제를 <strong>하네스 기법</strong> 으로 한꺼번에 해결합니다.</p>
+      </div>
+    </section>
+
+    <section id="harness">
+      <h2>3. 해법 — 하네스 (guardrail) 기법</h2>
+
+      <h3>3.1 하네스란?</h3>
+      <p>
+        <strong>Claude Code 가 어떤 명령을 받든 정해진 가드레일 위에서만 움직이게 하는 구조.</strong>
+      </p>
+
+      <h3>3.2 Context Manager + SDD = 하네스</h3>
+      <ul>
+        <li>Context 및 토큰 관리를 위해 <strong>Context Manager</strong> 가 작동하려면, 세션마다 참조할 기준이 레포 안에 있어야 한다.</li>
+        <li>이 기준을 만드는 방식이 <strong>Spec Driven Development (SDD)</strong> 다. <code>/onboard</code> 가 팀 아키텍처 · 컨벤션 · 결정 이력을 대화형 질문으로 뽑아 7 개 문서(<code>docs/</code> + <code>CLAUDE.md</code>) 에 spec 으로 고정한다.</li>
+        <li>이 spec 이 모든 skill 실행 초기에 자동 로드돼 Claude 를 같은 가드레일 위에 올리면 — 그게 <strong>하네스</strong> 다.</li>
+      </ul>
+    </section>
+
+    <section id="concept">
+      <h2>4. 핵심 기능</h2>
+
+      <h3>4.1 /onboard — 하네스 spec 자동 생성</h3>
+      <p>레포 최초 연결 시 <strong>한 번만</strong> 실행. 플랫폼 감지 → 문서 존재 확인 → 3 Case 분기.</p>
+      <ul>
+        <li><strong>Case 1</strong> (문서 0): 레포 스캔 + 대화형 질문 → 7 개 문서 생성</li>
+        <li><strong>Case 2</strong> (1~5): 누락 파일만 생성, 기존 보존</li>
+        <li><strong>Case 3</strong> (6): 신규 팀원 브리핑</li>
+      </ul>
+      <ul>
+        <li>Case 1 / 2: 생성 직후 <strong>Self-Critique</strong> 5 축 자동 실행 (모호성 · 충돌 · 누락 · 참조 · 대조)</li>
+        <li>CLAUDE.md 가 docs/ 전체를 <code>@</code> 참조 → 이후 모든 skill 이 자동 로드</li>
+      </ul>
+
+      <h3>4.2 /verify-docs — 수정 후 하네스 spec 재검증</h3>
+      <p>팀원이 <code>docs/</code> 를 수정한 뒤 실행. /onboard 와 같은 <strong>5 축 체크</strong> 를 모든 하네스 문서에 적용. 이슈 발견 시 <em>자동 수정 / 항목별 / 그대로</em> 중 선택.</p>
+      <ul>
+        <li><code>/onboard</code> = 생성 전용</li>
+        <li><code>/verify-docs</code> = 수정 후 재검증 전용</li>
+      </ul>
+
+      <h3>4.3 context-manager — 세션 경계 관리</h3>
+      <p>
+        모든 skill 이 초반에 로드. 작업을 <strong>Phase</strong> (큰 단계) + <strong>Task</strong> (세부) 로 분해,
+        <strong>1 세션 = 1 Phase 또는 1 Task</strong> 를 지키기 위해 아래 타이밍에 <code>/clear</code> 안내.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>타이밍</th>
+            <th>강제성</th>
+            <th>발동 조건</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>① Phase 전환 직후</td>
+            <td><strong>필수</strong></td>
+            <td>plan.md 의 Phase 체크박스가 <code>[ ]</code> → <code>[x]</code> 로 변경된 직후</td>
+          </tr>
+          <tr>
+            <td>② 컨텍스트 50% 초과</td>
+            <td>권장</td>
+            <td>Claude 의 자발적 체크 (훅 기반 자동화는 TODO)</td>
+          </tr>
+          <tr>
+            <td>③ 작업 이탈 감지</td>
+            <td><strong>필수</strong></td>
+            <td><code>/feature</code> 중 "버그 / 크래시" 등 키워드 등장 → <code>/bugfix</code> 전환 제안</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>상태는 <code>{skill}-plan.md</code> 체크리스트에만 저장 → <code>/clear</code> 후에도 복원 가능.</p>
+
+      <div class="callout">
+        <p>
+          <strong><code>/feature</code>, <code>/bugfix</code>, <code>/phase</code> 만 써도 위 3 가지가 자동으로 동작.</strong>
+          실행 초반에 <em>하네스 문서 확인 → context-manager 로드 → plan.md 기반 실행</em> 을 거치도록 설계됨.
+        </p>
+      </div>
+    </section>
+
+    <section id="flow">
+      <h2>5. 전체 흐름 다이어그램</h2>
+      <p>신규 레포를 받았을 때부터 기능 완성까지의 전체 흐름입니다.</p>
+
+      <div class="mermaid">
+flowchart TD
+    start([팀원이 레포 연결]) --> onboard[/onboard/]
+    onboard --> check{docs/ 상태}
+    check -->|0 개| create[Case 1<br/>전체 생성 모드]
+    check -->|1-5 개| fill[Case 2<br/>누락만 보완]
+    check -->|6 개| brief[Case 3<br/>신규 팀원 브리핑]
+    create --> critique[Self-Critique<br/>문서 품질 검증]
+    fill --> critique
+    critique --> harness[(docs/ 6 종 + CLAUDE.md)]
+    brief --> ready
+    harness --> ready{작업 시작}
+    ready -->|새 기능| feat[/feature/]
+    ready -->|버그| bug[/bugfix/]
+    feat --> plan[(feature-plan.md)]
+    bug --> plan2[(bugfix-plan.md)]
+    plan --> clear1[/clear/]
+    plan2 --> clear1
+    clear1 --> phase[/phase/]
+    phase --> writer[writer subagent<br/>구현]
+    writer --> test[테스트 실행]
+    test --> reviewer[reviewer subagent<br/>Phase 완료 후]
+    reviewer --> done([완료])
+    reviewer -.-> phase
+      </div>
+      <p style="font-size: 14px; color: var(--text-muted); margin-top: 8px;">
+        * Case 1 / 2 는 생성 직후 Self-Critique 로 모호성 · 참조 깨짐 · 레포 실상 불일치를 자동 검토합니다.
+        Case 3 (브리핑) 은 건너뜁니다.<br>
+        * docs/ 는 한 번 만들고 끝이 아닙니다. 아키텍처 / 컨벤션이 바뀔 때마다 수동으로 갱신하거나
+        <code>/onboard</code> Case 2 로 누락분만 재생성할 수 있습니다.
+      </p>
+    </section>
+
+    <section id="docs-guide">
+      <h2>6. 문서별 작성 가이드</h2>
+      <p>
+        <code>/onboard</code> 가 대부분 자동으로 채워주지만, 프로젝트가 진화하면 팀원이
+        직접 손으로 편집하게 됩니다. 각 파일에 무엇을 써야 하는지 기준을 정리했습니다.
+      </p>
+
+      <div class="card">
+        <h4>docs/PRD.md</h4>
+        <div class="card-row">
+          <div class="label">무엇을</div>
+          <div class="content">이 앱이 하는 일, 주요 사용자 & 사용 맥락, 핵심 가치(3 개 이내), 출시 단계, out of scope, 외부 상세 문서 링크</div>
+        </div>
+        <div class="card-row">
+          <div class="label">언제</div>
+          <div class="content">기획 방향 전환, 사용자 그룹 변경, MVP → Growth 단계 전환, out of scope 명확해졌을 때</div>
+        </div>
+        <div class="card-row">
+          <div class="label">좋은 예</div>
+          <div class="content">"사내 호텔 예약 앱. B2B 직원 전용. 핵심 가치: <strong>예약 속도 &gt; 화려한 UI</strong>. 단계: Growth (공용 기능 확장 중)."</div>
+        </div>
+        <div class="card-row">
+          <div class="label">피해야</div>
+          <div class="content">"다양한 기능 제공", "사용자 중심" 같은 마케팅 문구. 이 문서가 Claude 의 판단 근거라는 점을 잊지 말 것.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>docs/ARCHITECTURE.md</h4>
+        <div class="card-row">
+          <div class="label">무엇을</div>
+          <div class="content">모듈 / 타겟 트리, 모듈 간 의존 방향, 아키텍처 패턴 (Clean / MVVM 등), UI 시스템, 데이터 흐름, 상태 관리 수단</div>
+        </div>
+        <div class="card-row">
+          <div class="label">언제</div>
+          <div class="content">새 모듈 추가, 모듈 분리, 아키텍처 전환 (MVVM → MVI), UI 시스템 교체 (XML → Compose)</div>
+        </div>
+        <div class="card-row">
+          <div class="label">좋은 예</div>
+          <div class="content"><code>:data → :domain → :feature:home</code> 의존 방향 명시, "UI → ViewModel → UseCase → Repository → DataSource" 데이터 흐름</div>
+        </div>
+        <div class="card-row">
+          <div class="label">피해야</div>
+          <div class="content">개별 클래스 단위 나열 (모듈 단위에서 끊기), 향후 계획 (그건 PRD / ADR), UML 다이어그램 (텍스트로 충분)</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>docs/ADR.md</h4>
+        <div class="card-row">
+          <div class="label">무엇을</div>
+          <div class="content">라이브러리 / 기술 선택의 <strong>이유와 트레이드오프</strong>. 네트워크 / DI / 이미지 / 로컬 저장 / 네비게이션 / UI 카테고리별로 1 개씩.</div>
+        </div>
+        <div class="card-row">
+          <div class="label">언제</div>
+          <div class="content">라이브러리 신규 도입 / 교체, 중대한 설계 결정 (예: Result 패턴 채택)</div>
+        </div>
+        <div class="card-row">
+          <div class="label">좋은 예</div>
+          <div class="content">"<strong>Retrofit</strong> — 선택 이유: 코루틴 suspend 지원, OkHttp 인터셉터로 로깅 통일. 트레이드오프: 대용량 스트리밍 불리, 초기 설정 번거로움."</div>
+        </div>
+        <div class="card-row">
+          <div class="label">피해야</div>
+          <div class="content">"업계 표준이라서", "많이 쓰여서" 같은 근거. 장점만 나열하고 트레이드오프 누락. 결정한 지 오래돼서 이유를 기억 못하는 항목은 <code>[TBD]</code> 로 남길 것.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>docs/TESTING.md</h4>
+        <div class="card-row">
+          <div class="label">무엇을</div>
+          <div class="content">테스트 레벨 (unit / integration / instrumented), 네이밍 규칙, 커버리지 목표, CI 연동 범위, 사용 라이브러리</div>
+        </div>
+        <div class="card-row">
+          <div class="label">언제</div>
+          <div class="content">테스트 정책 변경, 새 테스트 레벨 도입 (instrumented 추가), 라이브러리 교체 (MockK → Mockito)</div>
+        </div>
+        <div class="card-row">
+          <div class="label">좋은 예</div>
+          <div class="content">"unit (ViewModel / UseCase / Mapper) + integration (Repository + Room). 네이밍: <code>`로그인_성공시_토큰저장`()</code> 한글 백틱. 커버리지: domain 80%."</div>
+        </div>
+        <div class="card-row">
+          <div class="label">피해야</div>
+          <div class="content">"커버리지 100%" 같은 비현실적 숫자, 계층별 구분 없는 뭉뚱그린 목표, 실제 안 돌리는 스탠다드 베끼기</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>docs/CONVENTIONS.md</h4>
+        <div class="card-row">
+          <div class="label">무엇을</div>
+          <div class="content">코드 스타일 / 네이밍, 에러 처리 방침, 로깅, <strong>Claude 작업 스코프 (어디까지 손대도 되나)</strong>, 커밋 메시지, Push 정책</div>
+        </div>
+        <div class="card-row">
+          <div class="label">언제</div>
+          <div class="content">팀 회의에서 새 규칙 합의, 코드 리뷰에서 같은 지적이 3 번 이상 나온 패턴, Claude 가 자주 벗어나는 경계 발견</div>
+        </div>
+        <div class="card-row">
+          <div class="label">좋은 예</div>
+          <div class="content">"에러: <strong>sealed Result&lt;S, E&gt;</strong> — 도메인 에러는 Result 로, 시스템 오류만 throw. Claude 스코프: 요청 파일 + 직접 호출자만. 주변 리팩토링은 별도 PR."</div>
+        </div>
+        <div class="card-row">
+          <div class="label">피해야</div>
+          <div class="content">"깔끔하게 쓴다", "가독성 좋게" 같은 추상. Claude 가 판단 불가능한 표현은 하네스 역할을 못 합니다.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>docs/UI_GUIDE.md</h4>
+        <div class="card-row">
+          <div class="label">무엇을</div>
+          <div class="content">디자인 원칙 (1~3 개), 색상 토큰, 타이포그래피, 컴포넌트 커스터마이징 규칙, AI 슬롭 금지 항목</div>
+        </div>
+        <div class="card-row">
+          <div class="label">언제</div>
+          <div class="content">디자인 시스템 교체, 다크모드 도입, 새 컴포넌트 표준 합의 (예: Card 의 elevation / radius 고정)</div>
+        </div>
+        <div class="card-row">
+          <div class="label">좋은 예</div>
+          <div class="content">"Material3 표준 준수, 커스텀 컬러 최소화. <strong>Card: elevation 0 + rounded 12dp 고정.</strong> Typography 는 토큰만, inline fontSize 금지."</div>
+        </div>
+        <div class="card-row">
+          <div class="label">피해야</div>
+          <div class="content">화면별 스펙 상세 (그건 Figma). 감지 안 된 디자인 시스템에 대해 억지 템플릿 채우기 (파일 생성 자체를 생략하는 게 낫다).</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p>
+          <strong>공통 원칙</strong> — 이 문서들은 <em>사람이 읽는 문서</em> 가 아니라
+          <em>Claude 에게 주는 입력</em> 입니다. "판단 가능한 구체성" 을 최우선으로 쓰세요.
+          "깔끔하게" 대신 "1 파일 300 줄 이하", "좋은 네이밍" 대신 "interface 접미사 없음, impl 은 Impl 접미사" 처럼.
+        </p>
+      </div>
+    </section>
+
+    <section id="scenario">
+      <h2>7. 실전 시나리오</h2>
+
+      <div class="scenario">
+        <h4>시나리오 1 — 기획자에게 PDF 를 받았다</h4>
+        <p class="scenario-situation">상황: 로그인 리뉴얼 기획서 PDF 가 Slack 으로 왔다.</p>
+        <pre><code>/feature ~/Downloads/login-renewal.pdf
+
+  ↓ (Claude 가 PDF 읽고 brainstorming 질의)
+  ↓ 팀원: 답변 / 선택
+
+feature-plan.md 생성 완료.
+
+  ↓ /clear  ← Phase 전환, 필수
+
+/phase 1
+
+  ↓ writer subagent 가 Task 단위 구현
+  ↓ 테스트 실행, 실패 시 처리 방향 질문
+
+/phase 2
+...
+</code></pre>
+        <p>
+          핵심: Phase 가 끝날 때마다 <code>/clear</code>. plan.md 체크리스트가 상태를 복원해주므로
+          맥락이 끊겨도 괜찮다.
+        </p>
+      </div>
+
+      <div class="scenario">
+        <h4>시나리오 2 — 크래시 로그가 올라왔다</h4>
+        <p class="scenario-situation">상황: Crashlytics 에 <code>NullPointerException at UserRepository.kt:42</code>.</p>
+        <pre><code>/bugfix java.lang.NullPointerException at UserRepository.kt:42
+
+  ↓ 유형 분류: 로직 / 크래시
+  ↓ systematic-debugging (원인 추적)
+  ↓ 복잡도 판단
+
+단순 (1~2 파일)        복잡 (3 파일 이상)
+    ↓                        ↓
+TDD 재현 → 수정         writing-plans → bugfix-plan.md
+    ↓                        ↓
+verification            /phase 로 단계 실행
+</code></pre>
+        <p>
+          핵심: 단순 버그는 즉시 수정, 복잡한 버그만 plan 으로 넘어간다.
+          유형 분류가 첫 단계라는 점이 중요.
+        </p>
+      </div>
+
+      <div class="scenario">
+        <h4>시나리오 3 — 신규 팀원이 오늘 입사했다</h4>
+        <p class="scenario-situation">상황: 입사 첫날, Claude Code 설치까지만 안내받은 상태.</p>
+        <pre><code>1. git clone {repo}
+2. /plugin marketplace add obra/superpowers
+3. /plugin install superpowers@superpowers
+4. /plugin marketplace add yunjeLee/yeoboya-workflow-plugin
+5. /plugin install yeoboya-workflow@yeoboya-apps
+
+6. cd {repo}
+7. /onboard
+
+  ↓ docs/ 6 종 이미 존재 → Case 3: 신규 팀원 브리핑 모드
+  ↓ 프로젝트 구조 / 아키텍처 / 컨벤션 요약 출력
+
+8. 브리핑 읽고 질문
+9. 첫 번째 작업 착수
+</code></pre>
+        <p>
+          핵심: 기존 팀원이 만들어둔 docs/ 가 그대로 신규 팀원의 온보딩 자료가 된다.
+          별도 온보딩 문서가 필요 없다.
+        </p>
+      </div>
+
+      <div class="scenario">
+        <h4>시나리오 4 — docs/ 가 낡았다는 걸 발견했다</h4>
+        <p class="scenario-situation">상황: ARCHITECTURE.md 에 3 개월 전 삭제한 <code>:legacy</code> 모듈이 남아 있다.</p>
+        <pre><code>선택지 A (권장): 수동 편집 + /verify-docs 로 재검증
+  - docs/ARCHITECTURE.md 직접 수정
+  - /verify-docs  ← 수정 결과가 다른 문서와 충돌하지 않는지, 레포 실상과
+                    어긋나지 않는지 5 축 체크로 점검
+  - git commit -m "docs: remove :legacy from architecture"
+
+선택지 B: /onboard Case 2 로 누락만 재생성
+  - 기존 파일은 <strong>건드리지 않는다</strong>
+  - 삭제된 docs/UI_GUIDE.md 같은 누락만 복구하고 싶을 때 유용
+  - ARCHITECTURE.md 자체 갱신에는 쓸 수 없음 (기존 파일 보존 규칙)
+</code></pre>
+        <p>
+          핵심: docs/ 는 "한 번 만들고 끝" 이 아닌 "살아있는 문서". 아키텍처 변경 PR 에서
+          docs/ 업데이트를 리뷰 체크리스트에 포함시키면 좋다.
+        </p>
+      </div>
+    </section>
+
+    <section id="faq">
+      <h2>8. FAQ</h2>
+
+      <p class="faq-q">Q1. superpowers 없이 쓸 수 있나요?</p>
+      <p class="faq-a">안 됩니다. feature / bugfix 가 내부에서 <code>brainstorming</code>, <code>writing-plans</code>, <code>systematic-debugging</code>, <code>test-driven-development</code> 등 superpowers 의 skill 을 호출합니다. 반드시 먼저 설치하세요.</p>
+
+      <p class="faq-q">Q2. docs/ 를 Git 에 커밋해야 하나요?</p>
+      <p class="faq-a">네. CLAUDE.md + docs/ 는 팀 공유 필수입니다. 참고: 이 플러그인 레포 자체는 예외적으로 pre-push 훅으로 <code>docs/</code> push 를 막습니다 — 플러그인 내부 작업 전용 영역이기 때문입니다. 여러분의 앱 레포에는 해당하지 않습니다.</p>
+
+      <p class="faq-q">Q3. /onboard 를 여러 번 돌려도 안전한가요?</p>
+      <p class="faq-a">안전합니다. Case 2 (일부 보완) 모드에서는 <strong>기존 파일을 절대 수정하지 않고</strong> 누락된 것만 생성합니다. 부담 없이 재실행 가능.</p>
+
+      <p class="faq-q">Q4. plan.md 를 수동으로 수정해도 되나요?</p>
+      <p class="faq-a">네. 체크리스트를 직접 수정하거나 Task 를 추가 / 삭제할 수 있습니다. 다음 <code>/phase</code> 실행 시 변경된 상태가 그대로 반영됩니다.</p>
+
+      <p class="faq-q">Q5. 컨텍스트 사용량 50% 는 어떻게 체크하나요?</p>
+      <p class="faq-a">아직 자동 측정 수단이 없습니다. 현재는 Claude 의 자발적 체크 + 사용자 판단에 의존합니다. <code>SessionStart</code> / <code>PreToolUse</code> 훅 기반 자동화는 플러그인 TODO 에 올라가 있습니다.</p>
+
+      <p class="faq-q">Q6. plan.md 파일명이 기존 것과 충돌하면?</p>
+      <p class="faq-a">자동으로 날짜 접미사가 붙습니다. 예: <code>feature-plan.md</code> 가 이미 있으면 <code>feature-plan-20260422.md</code> 로 저장됩니다.</p>
+
+      <p class="faq-q">Q7. Android + iOS 동시 지원 레포에서는?</p>
+      <p class="faq-a">현재는 감지 시 "Android / iOS 중 어떤 프로젝트인가요?" 로 질문합니다. multi-platform 동시 지원은 향후 검토 대상입니다.</p>
+
+      <p class="faq-q">Q8. CLAUDE.md 를 직접 편집해도 되나요?</p>
+      <p class="faq-a">네. <code>@docs/</code> 참조만 유지된다면 자유롭게 편집 가능합니다. 다만 docs/ 에 있는 내용을 CLAUDE.md 에 중복으로 쓰지 말고 <code>@</code> 참조로 위임하세요. docs/ 가 진실의 원천(source of truth) 입니다.</p>
+    </section>
+
+    <section id="ref">
+      <h2>9. 참고 링크</h2>
+      <ul>
+        <li><a href="./README.md">README.md</a> — 설치 / 시작하기 / 명령어 레퍼런스</li>
+        <li><a href="./skills/onboard/SKILL.md">/onboard SKILL.md</a></li>
+        <li><a href="./skills/feature/SKILL.md">/feature SKILL.md</a></li>
+        <li><a href="./skills/bugfix/SKILL.md">/bugfix SKILL.md</a></li>
+        <li><a href="./skills/phase/SKILL.md">/phase SKILL.md</a></li>
+        <li><a href="./skills/verify-docs/SKILL.md">/verify-docs SKILL.md</a></li>
+        <li><a href="./shared/context-manager.md">shared/context-manager.md</a> — context rot 방지 규칙 원문</li>
+        <li><a href="./shared/workflow.md">shared/workflow.md</a> — 공통 워크플로우 원문</li>
+        <li><a href="./shared/onboard-create.md">shared/onboard-create.md</a> — 온보드 문서 생성 규칙 원문</li>
+        <li><a href="https://github.com/obra/superpowers">superpowers 플러그인</a> (선행 설치 필요)</li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
+      flowchart: { curve: 'basis', padding: 16 }
+    });
+  }
+</script>
+</body>
+</html>
