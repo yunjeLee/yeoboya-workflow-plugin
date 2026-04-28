@@ -349,7 +349,7 @@
       <h3>3.2 Context Manager + SDD = 하네스</h3>
       <ul>
         <li>Context 및 토큰 관리를 위해 <strong>Context Manager</strong> 가 작동하려면, 세션마다 참조할 기준이 레포 안에 있어야 한다.</li>
-        <li>이 기준을 만드는 방식이 <strong>Spec Driven Development (SDD)</strong> 다. <code>/onboard</code> 가 팀 아키텍처 · 컨벤션 · 결정 이력을 대화형 질문으로 뽑아 7 개 문서(<code>docs/</code> + <code>CLAUDE.md</code>) 에 spec 으로 고정한다.</li>
+        <li>이 기준을 만드는 방식이 <strong>Spec Driven Development (SDD)</strong> 다. <code>/harness</code> 가 팀 아키텍처 · 컨벤션 · 결정 이력을 대화형 질문으로 뽑아 7 개 문서(<code>docs/</code> + <code>CLAUDE.md</code>) 에 spec 으로 고정한다.</li>
         <li>이 spec 이 모든 skill 실행 초기에 자동 로드돼 Claude 를 같은 가드레일 위에 올리면 — 그게 <strong>하네스</strong> 다.</li>
       </ul>
     </section>
@@ -357,26 +357,37 @@
     <section id="concept">
       <h2>4. 핵심 기능</h2>
 
-      <h3>4.1 /onboard — 하네스 spec 자동 생성</h3>
-      <p>레포 최초 연결 시 <strong>한 번만</strong> 실행. 플랫폼 감지 → 문서 존재 확인 → 3 Case 분기.</p>
+      <h3>4.1 /harness — 하네스 spec 자동 생성/보완</h3>
+      <p>레포 최초 연결 시 실행. 플랫폼 감지 → 문서 존재 확인 → Case 분기.</p>
       <ul>
-        <li><strong>Case 1</strong> (문서 0): 레포 스캔 + 대화형 질문 → 7 개 문서 생성</li>
-        <li><strong>Case 2</strong> (1~5): 누락 파일만 생성, 기존 보존</li>
-        <li><strong>Case 3</strong> (6): 신규 팀원 브리핑</li>
+        <li><strong>Case 1</strong> (핵심 6 종 모두 부재): 8 개 모듈 모두 실행 → 대화형 7 개 문서 생성</li>
+        <li><strong>Case 2</strong> (일부 부재): 부재 파일에 해당하는 모듈만 실행, 기존 파일 절대 보존</li>
+        <li><strong>모두 존재</strong>: 종료 안내 — <code>/harness-edit</code>(수정), <code>/harness-critique</code>(검증), <code>/onboard</code>(브리핑) 으로 가이드</li>
       </ul>
       <ul>
-        <li>Case 1 / 2: 생성 직후 <strong>Self-Critique</strong> 5 축 자동 실행 (모호성 · 충돌 · 누락 · 참조 · 대조)</li>
+        <li>생성 직후 <strong>Verify-Docs</strong> 5 축 자동 실행 (모호성 · 충돌 · 누락 · 참조 · 대조)</li>
         <li>CLAUDE.md 가 docs/ 전체를 <code>@</code> 참조 → 이후 모든 skill 이 자동 로드</li>
       </ul>
 
-      <h3>4.2 /verify-docs — 수정 후 하네스 spec 재검증</h3>
-      <p>팀원이 <code>docs/</code> 를 수정한 뒤 실행. /onboard 와 같은 <strong>5 축 체크</strong> 를 모든 하네스 문서에 적용. 이슈 발견 시 <em>자동 수정 / 항목별 / 그대로</em> 중 선택.</p>
+      <h3>4.2 /harness-edit {모듈명} — 섹션 단위 수정</h3>
+      <p>이미 만들어진 하네스 문서의 특정 섹션만 다시 작성. 다른 섹션은 절대 수정하지 않는다. 섹션 다중 선택 가능.</p>
       <ul>
-        <li><code>/onboard</code> = 생성 전용</li>
-        <li><code>/verify-docs</code> = 수정 후 재검증 전용</li>
+        <li>모듈명: <code>claude-md</code>, <code>prd</code>, <code>adr</code>, <code>architecture</code>, <code>testing</code>, <code>conventions</code>, <code>ui-guide</code>, <code>workflow</code></li>
+        <li>인자 없이 호출 시 모듈 목록 표시 후 사용자 선택</li>
+        <li>수정 후 <strong>Verify-Docs</strong> 5 축 자동 실행 (cross-file 일관성 보장)</li>
       </ul>
 
-      <h3>4.3 context-manager — 세션 경계 관리</h3>
+      <h3>4.3 /harness-critique — 하네스 spec 5 축 검증</h3>
+      <p>팀원이 IDE 로 직접 편집한 후, 또는 정기 점검 시 실행. <code>/harness</code> · <code>/harness-edit</code> 안에서도 자동 호출되지만 별도 진입점이다.</p>
+      <ul>
+        <li>인자 없음. 항상 8 개 전체 검증.</li>
+        <li>이슈 발견 시 <em>자동 수정 / 항목별 / 그대로</em> 중 선택.</li>
+      </ul>
+
+      <h3>4.4 /onboard — 신규 팀원 브리핑</h3>
+      <p>이미 하네스가 세팅된 프로젝트에서 신규 팀원에게 구조를 브리핑한다. 하네스가 부재하면 <code>/harness</code> 안내 후 종료.</p>
+
+      <h3>4.5 context-manager — 세션 경계 관리</h3>
       <p>
         모든 skill 이 초반에 로드. 작업을 <strong>Phase</strong> (큰 단계) + <strong>Task</strong> (세부) 로 분해,
         <strong>1 세션 = 1 Phase 또는 1 Task</strong> 를 지키기 위해 아래 타이밍에 <code>/clear</code> 안내.
@@ -423,16 +434,17 @@
 
       <div class="mermaid">
 flowchart TD
-    start([팀원이 레포 연결]) --> onboard[/onboard/]
-    onboard --> check{docs/ 상태}
-    check -->|0 개| create[Case 1<br/>전체 생성 모드]
-    check -->|1-5 개| fill[Case 2<br/>누락만 보완]
-    check -->|6 개| brief[Case 3<br/>신규 팀원 브리핑]
-    create --> critique[Self-Critique<br/>문서 품질 검증]
+    start([팀원이 레포 연결]) --> harnessCmd[/harness/]
+    harnessCmd --> check{docs/ 상태}
+    check -->|핵심 6 종 모두 부재| create[Case 1<br/>전체 생성]
+    check -->|일부 부재| fill[Case 2<br/>누락만 보완]
+    check -->|모두 존재| guide[종료 안내<br/>edit/critique/onboard]
+    create --> critique[Verify-Docs<br/>5 축 품질 검증]
     fill --> critique
-    critique --> harness[(docs/ 6 종 + CLAUDE.md)]
+    critique --> files[(docs/ 6 종 + CLAUDE.md)]
+    guide --> brief[/onboard/<br/>신규 팀원 브리핑]
     brief --> ready
-    harness --> ready{작업 시작}
+    files --> ready{작업 시작}
     ready -->|새 기능| feat[/feature/]
     ready -->|버그| bug[/bugfix/]
     feat --> plan[(feature-plan.md)]
@@ -447,18 +459,18 @@ flowchart TD
     reviewer -.-> phase
       </div>
       <p style="font-size: 14px; color: var(--text-muted); margin-top: 8px;">
-        * Case 1 / 2 는 생성 직후 Self-Critique 로 모호성 · 참조 깨짐 · 레포 실상 불일치를 자동 검토합니다.
-        Case 3 (브리핑) 은 건너뜁니다.<br>
-        * docs/ 는 한 번 만들고 끝이 아닙니다. 아키텍처 / 컨벤션이 바뀔 때마다 수동으로 갱신하거나
-        <code>/onboard</code> Case 2 로 누락분만 재생성할 수 있습니다.
+        * Case 1 / 2 는 생성 직후 Verify-Docs 로 모호성 · 참조 깨짐 · 레포 실상 불일치를 자동 검토합니다.<br>
+        * docs/ 는 한 번 만들고 끝이 아닙니다. 아키텍처 / 컨벤션이 바뀔 때마다 IDE 로 직접 편집하거나
+        <code>/harness-edit {모듈명}</code> 으로 섹션 단위 수정, 누락 보완은 <code>/harness</code> Case 2.
       </p>
     </section>
 
     <section id="docs-guide">
       <h2>6. 문서별 작성 가이드</h2>
       <p>
-        <code>/onboard</code> 가 대부분 자동으로 채워주지만, 프로젝트가 진화하면 팀원이
-        직접 손으로 편집하게 됩니다. 각 파일에 무엇을 써야 하는지 기준을 정리했습니다.
+        <code>/harness</code> 가 대부분 자동으로 채워주지만, 프로젝트가 진화하면 팀원이
+        IDE 로 직접 편집하거나 <code>/harness-edit {모듈명}</code> 으로 섹션 단위 수정합니다.
+        각 파일에 무엇을 써야 하는지 기준을 정리했습니다.
       </p>
 
       <div class="card">
@@ -652,8 +664,9 @@ verification            /phase 로 단계 실행
 6. cd {repo}
 7. /onboard
 
-  ↓ docs/ 6 종 이미 존재 → Case 3: 신규 팀원 브리핑 모드
+  ↓ docs/ 6 종 이미 존재 → 신규 팀원 브리핑 모드
   ↓ 프로젝트 구조 / 아키텍처 / 컨벤션 요약 출력
+  (※ 하네스가 부재면 /onboard 가 종료 안내. 그땐 /harness 로 먼저 생성)
 
 8. 브리핑 읽고 질문
 9. 첫 번째 작업 착수
@@ -667,13 +680,18 @@ verification            /phase 로 단계 실행
       <div class="scenario">
         <h4>시나리오 4 — docs/ 가 낡았다는 걸 발견했다</h4>
         <p class="scenario-situation">상황: ARCHITECTURE.md 에 3 개월 전 삭제한 <code>:legacy</code> 모듈이 남아 있다.</p>
-        <pre><code>선택지 A (권장): 수동 편집 + /verify-docs 로 재검증
-  - docs/ARCHITECTURE.md 직접 수정
-  - /verify-docs  ← 수정 결과가 다른 문서와 충돌하지 않는지, 레포 실상과
-                    어긋나지 않는지 5 축 체크로 점검
-  - git commit -m "docs: remove :legacy from architecture"
+        <pre><code>선택지 A: /harness-edit architecture (권장 — 섹션 단위 수정)
+  - 모듈의 섹션 목록 표시 → 수정할 섹션 선택 → 질문 1 개씩
+  - Edit 도구로 H2 블록 단위 부분 교체. 다른 섹션 절대 미수정
+  - 수정 후 Verify-Docs 5 축 자동 검증 (cross-file 일관성 보장)
+  - 사용자가 IDE 에서 검토 후 직접 commit (Hook 으로 자동 commit 차단)
 
-선택지 B: /onboard Case 2 로 누락만 재생성
+선택지 B: 수동 편집 + /harness-critique 로 재검증
+  - docs/ARCHITECTURE.md 를 IDE 로 직접 수정
+  - /harness-critique  ← 다른 문서와 충돌, 레포 실상 어긋남 5 축 체크
+  - 사용자가 직접 commit
+
+선택지 C: /harness Case 2 로 누락만 재생성
   - 기존 파일은 <strong>건드리지 않는다</strong>
   - 삭제된 docs/UI_GUIDE.md 같은 누락만 복구하고 싶을 때 유용
   - ARCHITECTURE.md 자체 갱신에는 쓸 수 없음 (기존 파일 보존 규칙)
@@ -694,8 +712,14 @@ verification            /phase 로 단계 실행
       <p class="faq-q">Q2. docs/ 를 Git 에 커밋해야 하나요?</p>
       <p class="faq-a">네. CLAUDE.md + docs/ 는 팀 공유 필수입니다. 참고: 이 플러그인 레포 자체는 예외적으로 pre-push 훅으로 <code>docs/</code> push 를 막습니다 — 플러그인 내부 작업 전용 영역이기 때문입니다. 여러분의 앱 레포에는 해당하지 않습니다.</p>
 
-      <p class="faq-q">Q3. /onboard 를 여러 번 돌려도 안전한가요?</p>
-      <p class="faq-a">안전합니다. Case 2 (일부 보완) 모드에서는 <strong>기존 파일을 절대 수정하지 않고</strong> 누락된 것만 생성합니다. 부담 없이 재실행 가능.</p>
+      <p class="faq-q">Q3. /harness 를 여러 번 돌려도 안전한가요?</p>
+      <p class="faq-a">안전합니다. Case 2 (일부 보완) 모드에서는 <strong>기존 파일을 절대 수정하지 않고</strong> 누락된 것만 생성합니다. 모두 존재하면 종료 안내만 합니다. 부담 없이 재실행 가능.</p>
+
+      <p class="faq-q">Q3-1. v2.2.x 의 /onboard / /verify-docs 는 어디로 갔나요?</p>
+      <p class="faq-a">v2.3.0 에서 책임별로 분리되었습니다. 생성/보완은 <code>/harness</code>, 섹션 수정은 <code>/harness-edit {모듈명}</code>, 검증은 <code>/harness-critique</code> (구 <code>/verify-docs</code>), 신규 팀원 브리핑은 <code>/onboard</code>. alias 는 유지하지 않습니다.</p>
+
+      <p class="faq-q">Q3-2. 하네스 .md 를 Claude 가 자동으로 commit 하나요?</p>
+      <p class="faq-a">아닙니다. v2.3.0 부터 PreToolUse Hook 이 8 개 하네스 .md 의 자동 commit/push 를 차단합니다. 변경된 .md 는 사용자가 IDE 에서 직접 검토 후 commit/push 하셔야 합니다 — 팀 규칙의 변경 추적성을 보장하기 위함입니다.</p>
 
       <p class="faq-q">Q4. plan.md 를 수동으로 수정해도 되나요?</p>
       <p class="faq-a">네. 체크리스트를 직접 수정하거나 Task 를 추가 / 삭제할 수 있습니다. 다음 <code>/phase</code> 실행 시 변경된 상태가 그대로 반영됩니다.</p>
@@ -717,14 +741,18 @@ verification            /phase 로 단계 실행
       <h2>9. 참고 링크</h2>
       <ul>
         <li><a href="./README.md">README.md</a> — 설치 / 시작하기 / 명령어 레퍼런스</li>
+        <li><a href="./skills/harness/SKILL.md">/harness SKILL.md</a></li>
+        <li><a href="./skills/harness-edit/SKILL.md">/harness-edit SKILL.md</a></li>
+        <li><a href="./skills/harness-critique/SKILL.md">/harness-critique SKILL.md</a></li>
         <li><a href="./skills/onboard/SKILL.md">/onboard SKILL.md</a></li>
         <li><a href="./skills/feature/SKILL.md">/feature SKILL.md</a></li>
         <li><a href="./skills/bugfix/SKILL.md">/bugfix SKILL.md</a></li>
         <li><a href="./skills/phase/SKILL.md">/phase SKILL.md</a></li>
-        <li><a href="./skills/verify-docs/SKILL.md">/verify-docs SKILL.md</a></li>
         <li><a href="./shared/context-manager.md">shared/context-manager.md</a> — context rot 방지 규칙 원문</li>
         <li><a href="./shared/workflow.md">shared/workflow.md</a> — 공통 워크플로우 원문</li>
-        <li><a href="./shared/onboard-create.md">shared/onboard-create.md</a> — 온보드 문서 생성 규칙 원문</li>
+        <li><a href="./shared/harness/">shared/harness/</a> — 8 개 하네스 모듈 (claude-md / prd / adr / architecture / testing / conventions / ui-guide / workflow)</li>
+        <li><a href="./shared/verify-docs.md">shared/verify-docs.md</a> — 5 축 검증 로직 모듈</li>
+        <li><a href="./hooks/">hooks/</a> — PreToolUse 보호 (warn-plugin-edit / block-harness-commit)</li>
         <li><a href="https://github.com/obra/superpowers">superpowers 플러그인</a> (선행 설치 필요)</li>
       </ul>
     </section>

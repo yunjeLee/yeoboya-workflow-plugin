@@ -24,9 +24,9 @@ Claude Code 를 팀 단위로 쓸 때 마주치는 3 가지 문제:
 
 ## 어떻게 수렴시키는가 — 3 가지 핵심
 
-### 1. `/onboard` — Spec Driven Development 로 하네스 문서 자동 생성
+### 1. `/harness` — Spec Driven Development 로 하네스 문서 생성/보완
 
-프로젝트 루트에서 `/onboard` 를 1 회 실행하면 Claude 가 대화형으로 다음 7 개
+프로젝트 루트에서 `/harness` 를 1 회 실행하면 Claude 가 대화형으로 다음 7 개
 파일을 생성합니다.
 
 | 파일 | 역할 |
@@ -41,6 +41,9 @@ Claude Code 를 팀 단위로 쓸 때 마주치는 3 가지 문제:
 
 Claude 가 **레포를 먼저 스캔해서 예시를 만든 뒤** 팀원에게 1 개씩 순차 질문을
 던집니다. 팀원은 선택지 번호만 누르거나 직접 입력하면 spec 이 완성됩니다.
+
+부분 수정은 `/harness-edit {모듈명}`, 검증은 `/harness-critique`, 신규 팀원
+브리핑은 `/onboard` 로 책임이 분리되어 있습니다.
 
 ### 2. `shared/context-manager.md` — context rot 방지 규칙
 
@@ -57,7 +60,7 @@ Claude 가 **레포를 먼저 스캔해서 예시를 만든 뒤** 팀원에게 1
 
 ### 3. Skill 체계 — 모든 skill 이 `@docs/` 를 읽고 같은 방향으로 간다
 
-각 skill 은 실행 초기에 `docs/` 6 종의 존재 여부를 확인하고, 없으면 `/onboard`
+각 skill 은 실행 초기에 `docs/` 6 종의 존재 여부를 확인하고, 없으면 `/harness`
 를 권유합니다. 이로써 팀원이 어떤 skill 을 치든 **같은 하네스 위에서** 동작합니다.
 
 ---
@@ -92,14 +95,17 @@ Claude 가 **레포를 먼저 스캔해서 예시를 만든 뒤** 팀원에게 1
 ## 시작하기
 
 ```
-/onboard
+/harness
 ```
 
-처음 쓰는 레포에서 `/onboard` 를 1 회 실행하면 나머지는 자동입니다.
+처음 쓰는 레포에서 `/harness` 를 1 회 실행하면 8 개 모듈이 자동으로 7 개 하네스
+파일을 만들거나 누락된 것만 보완합니다.
 
-- **핵심 문서 0 개**: 전체 생성 모드 (대화형)
-- **일부 있음**: 없는 것만 보완
-- **6 개 전부 있음**: 신규 팀원 브리핑 모드
+| 상태 | 동작 |
+|------|------|
+| 핵심 6 종 모두 부재 (Case 1) | 전체 생성 모드 |
+| 핵심 6 종 일부 부재 (Case 2) | 누락된 것만 보완 |
+| 8 종 모두 존재 | 종료 안내 — 수정/검증/브리핑 명령으로 가이드 |
 
 ---
 
@@ -107,11 +113,17 @@ Claude 가 **레포를 먼저 스캔해서 예시를 만든 뒤** 팀원에게 1
 
 | 명령어 | 언제 | 상세 |
 |--------|------|------|
-| `/onboard` | 레포 최초 연결 / 신규 팀원 합류 | [SKILL.md](skills/onboard/SKILL.md) |
+| `/harness` | 레포 최초 연결 / 누락된 하네스 보완 | [SKILL.md](skills/harness/SKILL.md) |
+| `/harness-edit {모듈명}` | 특정 하네스 문서의 섹션 단위 수정 | [SKILL.md](skills/harness-edit/SKILL.md) |
+| `/harness-critique` | 5 축 (모호성/일관성/완전성/참조/실상) 품질 검증 | [SKILL.md](skills/harness-critique/SKILL.md) |
+| `/onboard` | 신규 팀원 브리핑 (이미 하네스 세팅된 프로젝트) | [SKILL.md](skills/onboard/SKILL.md) |
 | `/feature` | 기획서(PDF) 또는 설명으로 기능 개발 | [SKILL.md](skills/feature/SKILL.md) |
 | `/bugfix` | 버그 설명 / 에러 로그 / 스크린샷 | [SKILL.md](skills/bugfix/SKILL.md) |
 | `/phase` | 작성된 plan.md 를 Phase 단위로 실행 | [SKILL.md](skills/phase/SKILL.md) |
-| `/verify-docs` | docs/ 수정 후 모호성 · 규칙 충돌 · 참조 깨짐 재검증 | [SKILL.md](skills/verify-docs/SKILL.md) |
+
+`/harness-edit` 의 모듈명: `claude-md`, `prd`, `adr`, `architecture`, `testing`,
+`conventions`, `ui-guide`, `workflow` 중 하나. 인자 없이 호출하면 목록에서
+선택할 수 있습니다.
 
 ### feature 흐름
 
@@ -158,6 +170,41 @@ Phase 전체 완료 후
 
 ---
 
+## .md 직접 commit 차단 (v2.3.0+)
+
+하네스 8 개 파일은 PreToolUse Hook 으로 **Claude 자동 commit/push 가 차단**됩니다.
+
+대상:
+- `CLAUDE.md`
+- `docs/PRD.md`, `docs/ADR.md`, `docs/ARCHITECTURE.md`,
+  `docs/TESTING.md`, `docs/CONVENTIONS.md`, `docs/UI_GUIDE.md`, `docs/WORKFLOW.md`
+
+`/harness`, `/harness-edit` 가 만든 변경은 **사용자가 IDE 에서 직접 검토 후
+commit/push** 하셔야 합니다. Claude 가 자기 판단으로 하네스 문서를 커밋하는
+것을 막아 팀 규칙의 변경 추적성을 보장합니다.
+
+---
+
+## 마이그레이션 (v2.2.x → v2.3.0)
+
+`/onboard` 한 명령어가 책임별로 4 개 명령어로 분리되었습니다.
+
+| v2.2.x | v2.3.0 |
+|--------|--------|
+| `/onboard` (전체 생성) | `/harness` |
+| `/onboard` (누락 보완) | `/harness` (Case 2 자동 분기) |
+| `/onboard` (브리핑) | `/onboard` (브리핑 전용) |
+| `/verify-docs` | `/harness-critique` (이름 변경) |
+| (없음) | `/harness-edit {모듈명}` (섹션 단위 수정 — 신규) |
+
+**동작 변경:**
+- 기존 `/onboard` 의 자동 분기(부재 시 생성 / 존재 시 브리핑) 동작은 사라졌습니다.
+- 신규 프로젝트는 반드시 `/harness` 부터 시작.
+- `/onboard` 는 하네스가 모두 존재할 때만 동작 (브리핑 전용).
+- `/verify-docs` alias 는 유지하지 않음 — `/harness-critique` 만 동작.
+
+---
+
 ## 더 깊이 — 팀 가이드
 
 개념 / 다이어그램 / 각 문서 작성 가이드 / 실전 시나리오 →
@@ -167,5 +214,7 @@ Phase 전체 완료 후
 
 ## 향후 개선 (TODO)
 
-- **Hooks 기반 강제 장치**: `context-manager.md` 의 ②(50%) / ③(이탈) 권장 규칙을
-  Claude Code 의 `SessionStart` / `Stop` / `PreToolUse` hook 으로 자동화한다.
+- **context-manager Hooks 자동화**: `context-manager.md` 의 ②(50%) / ③(이탈)
+  권장 규칙을 Claude Code 의 `SessionStart` / `Stop` 처럼 추가 hook 으로 자동화.
+  (v2.3.0 에서 PreToolUse 2 개 — plugin 내부 보호 / 하네스 commit 차단 — 이
+  먼저 추가됨.)
