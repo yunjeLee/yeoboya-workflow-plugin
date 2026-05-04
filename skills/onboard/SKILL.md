@@ -40,6 +40,15 @@ Glob tool 로 아래 핵심 6 종 + 부가 2 종 존재 여부를 확인한다.
 
 ---
 
+## Step 2.5: 모듈 인덱스 안내
+
+Glob 으로 `docs/MODULE_MAP.md` 존재 여부 확인.
+
+- 존재 → 브리핑 시작 시 1 줄 안내: `이 프로젝트는 모듈 단위 CLAUDE.md 를 사용합니다 — docs/MODULE_MAP.md 를 참조하세요.`
+- 부재 → Step 2.5 자체에서는 출력 없음. Step 3 브리핑 본체가 끝난 뒤 마지막에 한 줄 추가: `모듈 단위 CLAUDE.md 가 필요하면 /harness-map 으로 생성할 수 있습니다.`
+
+---
+
 ## Step 3: 브리핑 실행
 
 `shared/onboard-brief.md` 를 Read tool 로 읽고 그 지침에 따라 브리핑을 출력한다.

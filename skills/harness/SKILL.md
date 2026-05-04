@@ -56,6 +56,7 @@ Glob tool 로 아래 파일 존재 여부를 확인한다.
   수정: /harness-edit {파일명}      (예: /harness-edit prd)
   검증: /harness-critique
   브리핑: /onboard
+  모듈 맵: /harness-map               (모듈 단위 CLAUDE.md + 인덱스 생성)
 ```
 
 ---
