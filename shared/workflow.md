@@ -40,7 +40,7 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 
 ## 하네스 문서 부재 감지
 
-**이 섹션은 `/feature`, `/bugfix` 스킬 진입 초반에 실행된다. `/onboard` 는 이 섹션을 건너뛴다 (순환 방지).**
+**이 섹션은 `/feature`, `/bugfix` 스킬 진입 초반에 실행된다.**
 
 ### 검사 대상 — 핵심 문서 세트 (6 종)
 
@@ -60,13 +60,13 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 
 ```
 이 프로젝트에 하네스 문서 세트가 없습니다.
-/onboard 를 먼저 실행하면 Claude Code 가 프로젝트를 더 정확하게 이해하고
+/harness 를 먼저 실행하면 Claude Code 가 프로젝트를 더 정확하게 이해하고
 아키텍처/결정 이력을 자동으로 지킵니다.
 
-지금 /onboard 를 실행하시겠어요? (y / n — 기본값 없음, 답변 필요)
+지금 /harness 를 실행하시겠어요? (y / n — 기본값 없음, 답변 필요)
 ```
 
-- `y` → `skills/onboard/SKILL.md` 를 Read tool 로 읽고 지침을 따른 뒤, 완료되면 원래 스킬의 다음 단계로 이어서 진행한다
+- `y` → `skills/harness/SKILL.md` 를 Read tool 로 읽고 지침을 따른 뒤, 완료되면 원래 스킬의 다음 단계로 이어서 진행한다
 - `n` → 경고 한 줄 남기고 원래 스킬 계속 진행
 
 **B. 일부만 있음 (1~5 개)**
@@ -78,7 +78,7 @@ build.gradle 또는 build.gradle.kts 존재 → PLATFORM=Android
 ```
 
 - `y` → 계속 진행
-- `n` → A 와 동일하게 `skills/onboard/SKILL.md` 를 Read 한 뒤 원래 스킬의 다음 단계로 진행한다
+- `n` → A 와 동일하게 `skills/harness/SKILL.md` 를 Read 한 뒤 원래 스킬의 다음 단계로 진행한다
 
 **C. 전부 있음 (6 개)**
 
