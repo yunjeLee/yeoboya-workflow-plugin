@@ -1,6 +1,6 @@
 # module-detect 모듈
 
-호출자(`skills/harness-map/SKILL.md`) 가 Read tool 로 읽고 그대로 따른다.
+호출자(`skills/harness-module/SKILL.md`) 가 Read tool 로 읽고 그대로 따른다.
 이 모듈은 플랫폼별로 모듈 후보를 감지하고, 각 모듈의 메타정보를 수집하고, Y/N 추천 디폴트를 결정하는 절차를 정의한다.
 
 ---

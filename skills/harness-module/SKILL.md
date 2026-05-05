@@ -1,15 +1,15 @@
 ---
-name: harness-map
-description: "프로젝트의 모듈 단위 CLAUDE.md 와 docs/MODULE_MAP.md 인덱스를 생성한다. /harness-map, 모듈 맵 생성, 모듈별 CLAUDE.md, 모듈 단위 하네스 요청 시 반드시 사용한다. 하네스 핵심 6 종 부재 시 /harness 안내 후 종료."
+name: harness-module
+description: "프로젝트의 모듈 단위 CLAUDE.md 와 docs/MODULE_MAP.md 인덱스를 생성한다. /harness-module, 모듈 맵 생성, 모듈별 CLAUDE.md, 모듈 단위 하네스 요청 시 반드시 사용한다. 하네스 핵심 6 종 부재 시 /harness 안내 후 종료."
 model: opus
 ---
 
-# Harness Map Skill — 모듈 단위 코드베이스 맵
+# Harness Module Skill — 모듈 단위 코드베이스 맵
 
 루트 하네스가 이미 세팅된 프로젝트에서 모듈 단위 `CLAUDE.md` 를 생성하고, 전체 모듈을 한눈에 보는 `docs/MODULE_MAP.md` 인덱스를 만든다. 빌드 그래프 자동 추출 + 사용자 검토를 결합해 모듈 1 개씩 순차 처리하며, 중간 중단/재개를 progress 파일로 지원한다.
 
 ## 트리거
-- `/harness-map` — 프로젝트 루트에서 실행
+- `/harness-module` — 프로젝트 루트에서 실행
 
 ---
 
@@ -84,7 +84,7 @@ Glob tool 로 핵심 6 종의 존재 여부를 확인한다.
 
 ## Step 5: progress 파일 생성 / resume
 
-progress 파일 경로: `docs/superpowers/progress/harness-map.md`.
+progress 파일 경로: `docs/superpowers/progress/harness-module.md`.
 
 ### 이미 존재하는 경우
 
@@ -104,7 +104,7 @@ Read 해서 미완료 (`- [ ]`) 항목이 1 개 이상 있으면 사용자에게
 다음 양식으로 Write tool 로 생성한다.
 
 ```markdown
-# /harness-map 진행
+# /harness-module 진행
 
 플랫폼: {Android/iOS/General}
 감지된 모듈: {n} 개
@@ -142,7 +142,7 @@ Read 해서 미완료 (`- [ ]`) 항목이 1 개 이상 있으면 사용자에게
    다음 모듈로 진행할까요? [Y/n]
    ```
 
-   `N` 이면 즉시 중단. progress 파일의 미완료 항목은 그대로 남으므로, 다음 `/harness-map` 호출 시 Step 5 의 resume 분기에서 이어 받는다.
+   `N` 이면 즉시 중단. progress 파일의 미완료 항목은 그대로 남으므로, 다음 `/harness-module` 호출 시 Step 5 의 resume 분기에서 이어 받는다.
 
 ---
 
@@ -157,7 +157,7 @@ Read 해서 미완료 (`- [ ]`) 항목이 1 개 이상 있으면 사용자에게
   지금까지 완료된 모듈로 인덱스를 생성할까요? [y/N]
   ```
 
-  `y` → Step 7 진행. 빈 입력 또는 `N` → Step 7 skip 하고 그대로 종료 (다음 `/harness-map` 호출 시 resume 분기에서 이어서 진행).
+  `y` → Step 7 진행. 빈 입력 또는 `N` → Step 7 skip 하고 그대로 종료 (다음 `/harness-module` 호출 시 resume 분기에서 이어서 진행).
 
 1. `shared/module-claude-template.md` 의 `## docs/MODULE_MAP.md 인덱스 양식` 대로 `docs/MODULE_MAP.md` 를 Write tool 로 생성/덮어쓰기 한다. 행 정렬은 `module-detect.md` 가 반환한 모듈 순서를 그대로 보존한다.
 2. 루트 `CLAUDE.md` 를 Read 해서 마지막 줄에 `@docs/MODULE_MAP.md` 가 있는지 확인.
@@ -176,12 +176,12 @@ Read 해서 미완료 (`- [ ]`) 항목이 1 개 이상 있으면 사용자에게
 ## Step 8: 완료 리포트
 
 ```
-## /harness-map 완료 리포트
+## /harness-module 완료 리포트
 - 플랫폼: {Android / iOS / General}
 - 감지 모듈: {n} 개 / 선택 모듈: {m} 개
 - 생성: {모듈 CLAUDE.md 경로 목록}, docs/MODULE_MAP.md
 - 루트 CLAUDE.md: { @docs/MODULE_MAP.md 추가 / 이미 존재 }
-- 중단된 모듈: {있다면 목록 — 다음 /harness-map 호출 시 이어서 진행}
+- 중단된 모듈: {있다면 목록 — 다음 /harness-module 호출 시 이어서 진행}
 
 다음 단계:
   사용자가 IDE 에서 검토 후 직접 commit/push 하세요.

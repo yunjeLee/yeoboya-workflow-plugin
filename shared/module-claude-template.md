@@ -1,6 +1,6 @@
 # module-claude-template 모듈
 
-호출자(`skills/harness-map/SKILL.md`) 가 Read tool 로 읽고 그대로 따른다.
+호출자(`skills/harness-module/SKILL.md`) 가 Read tool 로 읽고 그대로 따른다.
 이 모듈은 모듈별 `CLAUDE.md` 의 양식, 자동 추론 가이드 (Q1/Q4 및 Q2/Q3/Q5), 50 줄 압축 규칙, 그리고 `docs/MODULE_MAP.md` 인덱스 양식을 한 곳에 정의한다.
 
 전제: 호출자는 `shared/module-detect.md` 를 먼저 실행해 `modules` (각 항목은 `{ name, path, file_count, has_namespace, depends_on, dependents, has_readme, recommend }`) 를 들고 진입한다. 본 모듈은 그 결과를 기반으로 모듈별 CLAUDE.md 본문을 생성한다.
@@ -148,7 +148,7 @@ CLAUDE.md 가 길어지면 모델이 매번 다 읽지 못한다. 모듈별로 5
      [Y/n] 이 압축본으로 저장할까요?
      ```
    - `Y` (또는 빈 입력) → 저장. `N` → 저장하지 않고 사용자가 직접 줄여서 다시 입력하도록 안내.
-4. **정보 손실 방지**: 압축이 발생할 때마다 원문(압축 전) 을 호출자가 사용 중인 progress 파일 (예: `docs/superpowers/progress/harness-map.md`) 의 모듈별 `### 백업 — {모듈명}` 섹션으로 남긴다. 사후 복원 가능해야 한다.
+4. **정보 손실 방지**: 압축이 발생할 때마다 원문(압축 전) 을 호출자가 사용 중인 progress 파일 (예: `docs/superpowers/progress/harness-module.md`) 의 모듈별 `### 백업 — {모듈명}` 섹션으로 남긴다. 사후 복원 가능해야 한다.
 
 ---
 
@@ -159,7 +159,7 @@ CLAUDE.md 가 길어지면 모델이 매번 다 읽지 못한다. 모듈별로 5
 ````markdown
 # 모듈 인덱스
 
-> `/harness-map` 으로 생성됨. 모듈 추가/삭제 시 다시 실행.
+> `/harness-module` 으로 생성됨. 모듈 추가/삭제 시 다시 실행.
 
 | 모듈 | 역할 (Q1 1 줄) | 의존하는 모듈 | 이 모듈에 의존하는 모듈 |
 |------|----------------|---------------|--------------------------|
