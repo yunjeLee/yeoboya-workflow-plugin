@@ -12,8 +12,9 @@
 
 본 모듈의 출력은 다음 두 가지다:
 
-- `modules`: 감지된 모듈 목록. 각 항목은 `{ name, path, file_count, has_namespace, depends_on, dependents, has_readme, recommend }` 형태.
+- `modules`: 감지된 모듈 목록. 각 항목은 `{ name, path, file_count, has_namespace, depends_on, dependents, has_readme, commit_count_3m, legacy_pair, score, recommend, reason }` 형태.
 - `recommend` 는 `Y` 또는 `N` (디폴트값일 뿐, 사용자가 [Y/n] 으로 뒤집을 수 있음).
+- `score` 는 0~8점 정수, `reason` 은 추천 근거 한 줄 문자열.
 
 ---
 
@@ -114,34 +115,97 @@
 
 - 모듈 디렉토리(`{path}`) 에 `README.md` 가 존재하면 `true`, 아니면 `false`. 대소문자만 다른 변형(`Readme.md`, `readme.md`) 도 동등 취급.
 
+### commit_count_3m
+
+최근 3 개월 동안 이 모듈 안의 소스 파일이 변경된 git 커밋 수.
+
+- Bash tool 로 다음 형태의 커맨드를 실행한다:
+  - macOS: `git log --since="$(date -v-3m +%Y-%m-%d)" --name-only --pretty=format: -- "{path}/" | grep -c "{ext}"`
+  - Linux: `git log --since="$(date -d '-3 months' +%Y-%m-%d)" --name-only --pretty=format: -- "{path}/" | grep -c "{ext}"`
+- 확장자 패턴 (`{ext}`):
+  - Android: `\.kt$\|\.java$`
+  - iOS: `\.swift$`
+  - 일반: `.` (모든 파일 카운트)
+- git 저장소가 아니거나 커맨드 실패 시 `0` 으로 둔다 (휴리스틱은 다른 신호로 작동).
+
+### legacy_pair
+
+같은 책임을 가진 레거시/신규 모듈이 함께 존재하는지 여부 (boolean). AI 가 가장 헷갈리는 케이스를 잡아내기 위한 신호다.
+
+전체 modules 목록을 모두 모은 다음 마지막 단계에서 한 번에 계산한다 (개별 모듈 단위로는 판정 불가).
+
+판정 절차:
+
+1. 각 모듈명에서 마지막 콜론 세그먼트만 추출 (예: `:core:core_model` → `core_model`, `:core:model` → `model`).
+2. 그 세그먼트에 정규식 `^core[_-](.+)$` 매칭하면 base 는 캡처 그룹 (예: `core_model` → `model`, `core-data` → `data`). 매칭 안 되면 base 는 세그먼트 자체.
+3. 같은 base 를 가진 모듈이 2 개 이상 존재하면 그 모듈들 모두 `legacy_pair = true`. 그 외는 `false`.
+
+예:
+- `:core:model` (base=`model`) + `:core:core_model` (base=`model`) → 둘 다 `true`
+- `:core:remote` + `:core:core_remote` → 둘 다 `true`
+- `:feature:home` 단독 → `false`
+
 ---
 
-## 추천 휴리스틱 (Y/N 디폴트)
+## 추천 휴리스틱 (점수 기반)
 
-각 모듈의 메타정보를 보고 `recommend` 디폴트값을 정한다.
+각 모듈의 메타정보를 보고 `score` (0~8점), `recommend` (`Y` / `N`), `reason` (추천 근거 한 줄) 을 계산한다.
 
-### 권장(Y) 신호
+부족 지식(Tribal Knowledge) 이 있을 가능성이 높은 모듈을 잡는 것이 목적이다. 핵심 신호 2 개와 보조 신호 1 개로 점수를 매긴다.
 
-다음 중 **2 개 이상** 만족 시 `Y`:
+### 점수 계산
 
-- `file_count >= 10`
-- `has_namespace == true`
-- `dependents.length > 0` (이 모듈에 의존하는 다른 모듈이 1 개 이상 존재)
-- `has_readme == true`
+**핵심 1 — 수정 빈도** (`commit_count_3m`)
+미래에 AI 가 자주 건드릴 모듈일수록 CLAUDE.md ROI 가 즉시 발생한다.
 
-### 비권장(N) 신호
+- `>= 10` → 4 점
+- `5 ~ 9` → 3 점
+- `2 ~ 4` → 2 점
+- `0 ~ 1` → 0 점
 
-다음 중 **2 개 이상** 만족 시 `N`:
+**핵심 2 — 팬인** (`dependents.length`)
+다른 모듈이 많이 의존하는 모듈은 잘못 건드리면 파장이 크다. 함정 문서화 가치가 크다.
 
-- `file_count < 5`
-- 모듈명이 정규식 `^.+-(util|utils|common|core|helpers|ext)$` 로 매칭 (대소문자 무시, gradle 콜론 표기일 경우 마지막 세그먼트만 비교 — 예: `:core:common` 의 `common`)
-- `dependents.length == 0`
+- `>= 5` → 3 점
+- `3 ~ 4` → 2 점
+- `1 ~ 2` → 1 점
+- `0` → 0 점
 
-### 충돌 해결
+**보조 — 레거시/신규 혼재** (`legacy_pair`)
+같은 책임의 모듈이 두 개 이상 공존하면 AI 가 어느 쪽에 코드를 넣어야 할지 판단할 수 없다.
 
-- Y 와 N 양쪽이 모두 발동하면 **Y 우선**.
-- 어느 쪽도 발동 안 하면 안전하게 `Y` (의심스러우면 포함이 디폴트).
+- `true` → +1 점
+- `false` → +0 점
+
+총점 범위: 0 ~ 8 점.
+
+### 추천 결정 (recommend)
+
+- `score >= 5` → `Y`
+- `score < 5` → `N`
+
+### 무조건 N (점수 무관)
+
+다음 중 하나라도 해당하면 점수와 무관하게 `recommend = N`. 단순하거나 거의 변하지 않는 모듈에 CLAUDE.md 를 만드는 것은 유지보수 부담만 늘린다.
+
+- `file_count < 10` (코드를 읽으면 바로 이해되는 단순 모듈)
+- `commit_count_3m == 0` 이면서 `dependents.length == 0` (안정적이고 누구도 의존하지 않는 모듈)
+
+### reason 생성
+
+추천 근거를 한 줄로 만든다. 점수에 기여한 신호만 골라 콤마로 연결한다. 무조건 N 룰로 걸러진 경우 사유를 명시한다.
+
+예시:
+- `수정 12회, 팬인 5개, 레거시 혼재` (Y 추천, 점수 8)
+- `수정 8회, 팬인 1개` (Y 추천, 점수 4 → 컷오프 미달이지만 비슷)
+- `팬인 3개, 레거시 혼재` (Y 추천, 점수 3 → 컷오프 미달)
+- `파일 3개 — 단순 모듈` (N 추천, 무조건 N)
+- `수정 0회 + 의존받지 않음 — 안정 모듈` (N 추천, 무조건 N)
 
 ### 사용자 오버라이드
 
 추천은 **디폴트일 뿐** 이다. 호출자는 각 모듈을 사용자에게 노출할 때 `[Y/n]` (Y 디폴트) 또는 `[y/N]` (N 디폴트) 형태로 물어 사용자가 한 글자 입력으로 뒤집을 수 있게 한다.
+
+### Anchoring Bias 방지
+
+호출자는 추천 표를 보여준 뒤 사용자에게 한 가지 추가 질문을 던진다 — *"이 리스트에 빠진 모듈 중 자주 막혔거나 다른 사람한테 물어봤던 모듈이 있나요?"*. 데이터로 못 잡는 부족 지식 신호를 사람으로부터 받아내기 위함이다.

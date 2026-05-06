@@ -50,7 +50,7 @@ Glob tool 로 핵심 6 종의 존재 여부를 확인한다.
 
 `shared/module-detect.md` 를 Read tool 로 읽고, 그 모듈의 `## 플랫폼별 모듈 감지` 와 `## 모듈 메타정보 수집` 절차를 순서대로 실행한다.
 
-결과는 `modules` 배열로 들고 있는다. 각 항목은 `{ name, path, file_count, has_namespace, depends_on, dependents, has_readme, recommend }` 형태 — **이 필드들은 module-detect.md 가 정의한다. 본 SKILL 에서 다시 정의하지 않는다.**
+결과는 `modules` 배열로 들고 있는다. 각 항목은 `{ name, path, file_count, has_namespace, depends_on, dependents, has_readme, commit_count_3m, legacy_pair, score, recommend, reason }` 형태 — **이 필드들은 module-detect.md 가 정의한다. 본 SKILL 에서 다시 정의하지 않는다.**
 
 ---
 
@@ -58,13 +58,14 @@ Glob tool 로 핵심 6 종의 존재 여부를 확인한다.
 
 `shared/module-detect.md` 의 `## 추천 휴리스틱` 은 Step 3 에서 이미 적용돼 각 항목의 `recommend` 필드에 `Y` / `N` 디폴트가 들어 있다.
 
-사용자에게 모듈 표를 출력한다. `#` 컬럼은 1-based 행 번호로, `[B]` 입력에서 사용한다.
+사용자에게 모듈 표를 출력한다. `#` 컬럼은 1-based 행 번호로, `[B]` 입력에서 사용한다. 점수 기준 내림차순 정렬한다.
 
 ```
-| # | 모듈 | 파일 | 의존 → | 의존 ← | 추천 |
-|---|------|------|--------|--------|------|
-| 1 | :feature:home | 42 | 3 | 1 | Y |
-| 2 | :core:util | 3  | 0 | 0 | N |
+| # | 모듈 | 점수 | 파일 | 수정3m | 의존 ← | 추천 | 이유 |
+|---|------|------|------|--------|--------|------|------|
+| 1 | :core:core_socket   | 8 | 32 | 12 | 5 | Y | 수정 12회, 팬인 5개, 레거시 혼재 |
+| 2 | :feature:home       | 6 | 42 | 14 | 1 | Y | 수정 14회, 팬인 1개 |
+| 3 | :core:util          | 0 |  3 |  0 | 0 | N | 파일 3개 — 단순 모듈 |
 ```
 
 이어서 두 가지 입력 방식을 제안한다.
@@ -77,6 +78,18 @@ Glob tool 로 핵심 6 종의 존재 여부를 확인한다.
 
 - `A` 선택 → 모듈 순서대로 한 줄씩 `[Y/n]` (디폴트는 `recommend` 값) 으로 묻는다.
 - `B` 선택 → 사용자가 입력한 번호(표 `#` 컬럼, 1-based) 들에 해당하는 모듈만 `recommend` 값을 뒤집고 나머지는 디폴트 유지.
+
+### Anchoring Bias 방지 질문
+
+A 또는 B 처리가 끝난 직후, 사용자에게 한 번 더 묻는다.
+
+```
+이 리스트에 빠진 모듈 중 자주 막혔거나 다른 사람한테 물어봤던 모듈이 있나요?
+있으면 모듈 ID 를 콤마로 입력하세요 (예: :feature:profile, :core:billing).
+없으면 빈 입력 또는 N.
+```
+
+사용자가 입력한 모듈 ID 가 `modules` 안에 존재하면 `recommend` 를 `Y` 로 바꾸고 `reason` 에 `사용자 추가` 라고 표시한다. 존재하지 않는 ID 는 무시하고 한 줄로 안내한다.
 
 최종 포함 모듈을 `selected_modules` 배열로 확정한다.
 
