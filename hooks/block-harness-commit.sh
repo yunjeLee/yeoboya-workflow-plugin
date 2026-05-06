@@ -1,5 +1,5 @@
 #!/bin/bash
-# Hook 2: 하네스 8 개 .md 가 commit/push 대상이면 차단 (Hard block / Deny)
+# Hook 2: 하네스 7 개 .md 가 commit/push 대상이면 차단 (Hard block / Deny)
 # Matcher: PreToolUse / Bash
 set -euo pipefail
 
@@ -30,7 +30,7 @@ case "$command" in
     ;;
 esac
 
-# 하네스 8 개 파일 매칭
+# 하네스 7 개 파일 매칭
 harness_files=(
   "CLAUDE.md"
   "docs/PRD.md"
@@ -39,7 +39,6 @@ harness_files=(
   "docs/TESTING.md"
   "docs/CONVENTIONS.md"
   "docs/UI_GUIDE.md"
-  "docs/WORKFLOW.md"
 )
 
 blocked=()

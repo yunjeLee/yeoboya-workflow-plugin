@@ -1,1 +1,4 @@
 .DS_Store
+*.html
+docs/
+CLAUDE.md

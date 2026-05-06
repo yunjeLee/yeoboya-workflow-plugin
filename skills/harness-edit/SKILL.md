@@ -1,6 +1,6 @@
 ---
 name: harness-edit
-description: "이미 생성된 하네스 문서(CLAUDE.md, docs/*.md) 의 특정 섹션을 대화형으로 수정한다. /harness-edit prd, /harness-edit adr 등 8 개 모듈명을 인자로 받는다. 인자 누락 시 모듈 목록을 표시한다. 하네스 수정, 섹션 수정, 일부 다시 작성 요청 시 사용한다."
+description: "이미 생성된 하네스 문서(CLAUDE.md, docs/*.md) 의 특정 섹션을 대화형으로 수정한다. /harness-edit prd, /harness-edit adr 등 7 개 모듈명을 인자로 받는다. 인자 누락 시 모듈 목록을 표시한다. 하네스 수정, 섹션 수정, 일부 다시 작성 요청 시 사용한다."
 model: opus
 ---
 
@@ -9,8 +9,8 @@ model: opus
 이미 생성된 하네스 문서의 특정 섹션만 다시 작성한다. 다른 섹션은 절대 건드리지 않는다.
 
 ## 트리거
-- `/harness-edit {name}` — `name`: `claude-md` / `prd` / `adr` / `architecture` / `testing` / `conventions` / `ui-guide` / `workflow` 중 하나
-- `/harness-edit` (인자 없이) — 8 개 모듈 목록 표시 후 사용자 선택
+- `/harness-edit {name}` — `name`: `claude-md` / `prd` / `adr` / `architecture` / `testing` / `conventions` / `ui-guide` 중 하나
+- `/harness-edit` (인자 없이) — 7 개 모듈 목록 표시 후 사용자 선택
 
 ---
 
@@ -27,17 +27,16 @@ model: opus
   5) testing       (docs/TESTING.md)
   6) conventions   (docs/CONVENTIONS.md)
   7) ui-guide      (docs/UI_GUIDE.md)
-  8) workflow      (docs/WORKFLOW.md)
 
 번호 입력 또는 모듈명:
 ```
 
-### 인자가 8 개 중 하나가 아닐 때
+### 인자가 7 개 중 하나가 아닐 때
 
 다음 메시지 출력 후 위 목록을 다시 표시한다:
 
 ```
-'{입력값}' 은 유효한 모듈명이 아닙니다. 8 개 중 하나를 선택해주세요.
+'{입력값}' 은 유효한 모듈명이 아닙니다. 7 개 중 하나를 선택해주세요.
 ```
 
 ---
@@ -100,7 +99,7 @@ shared/harness/{name}.md 의 섹션 목록:
 
 `shared/verify-docs.md` 를 Read tool 로 읽고 5 축 검증을 실행한다.
 
-> 검증 대상은 인자 없음 = 항상 8 개 전체. 단일 파일 수정이라도 cross-file 일관성을 보장하기 위해 8 개 모두 검사.
+> 검증 대상은 인자 없음 = 항상 7 개 전체. 단일 파일 수정이라도 cross-file 일관성을 보장하기 위해 7 개 모두 검사.
 
 ---
 

@@ -15,9 +15,15 @@ model: opus
 
 ## Step 1: 플랫폼 자동 감지
 
-`shared/workflow.md` 를 Read tool 로 읽고 **플랫폼 자동 감지** 섹션 지침을 그대로 따른다.
+프로젝트 루트에서 아래 파일을 스캔한다.
 
-> 주의: **하네스 문서 부재 감지** 섹션은 이 스킬에서 건너뛴다 (순환 방지 — 부재 확인은 Step 2 에서 자체적으로 수행).
+- `build.gradle` 또는 `build.gradle.kts` 존재 → `PLATFORM=Android`
+- `*.xcodeproj` 또는 `*.xcworkspace` 존재 → `PLATFORM=iOS`
+- 둘 다 없으면 `"Android / iOS 중 어떤 프로젝트인가요?"` 질문
+
+감지된 플랫폼을 이후 모든 단계에서 사용한다.
+
+> 하네스 부재 확인은 Step 2 에서 자체적으로 수행한다.
 
 ---
 
