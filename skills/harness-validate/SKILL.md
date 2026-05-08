@@ -87,9 +87,9 @@ USER_MSG_COUNT=$(jq -s '[.[] | select(.type == "user")] | length' "$LATEST_JSONL
 
 ```json
 {
-  "T1": "profile 기능을 새 모듈로 분리해줘.\n\nacceptance:\n- :feature:feature_profile:{api,impl}, :data:data_profile:{api,impl} 4 모듈 생성\n- kr.co.inforexseoul.radioproject.ui.profile 패키지 비어 있음\n- ./gradlew :app:assembleDebug 통과\n- grep -rn \"radioproject.ui.profile\" app/src/main/java/ 결과 0 건\n\n표준 절차는 docs/ 참고. plan 파일(docs/superpowers/plans/) 은 참고하지 말 것.",
+  "T1": "profile 기능을 새 모듈로 분리해줘.\n\n절차 (반드시 지킬 것):\n1. superpowers:brainstorming 스킬을 사용해 구현 계획을 세운다.\n2. brainstorming 결과를 markdown 으로 정리해 plans/{YYYY-MM-DD}-validate-T1-profile.md 에 저장한다.\n   - 분리 대상 파일 목록, 신규 모듈 구조, 패키지 이동 경로, gradle 의존성 변경, 단계별 작업 순서 포함.\n3. 작성한 plan 경로를 보여주고 \"이 계획대로 진행할까요?\" 라고 사용자 확인을 받는다.\n4. 사용자가 승인하면 그때부터 코드 변경을 시작한다.\n\nacceptance:\n- :feature:feature_profile:{api,impl}, :data:data_profile:{api,impl} 4 모듈 생성\n- kr.co.inforexseoul.radioproject.ui.profile 패키지 비어 있음\n- ./gradlew :app:assembleDebug 통과\n- grep -rn \"radioproject.ui.profile\" app/src/main/java/ 결과 0 건\n\n표준 절차는 docs/ 참고.",
 
-  "T2": "report 기능을 새 모듈로 분리해줘.\n\nacceptance:\n- :feature:feature_report:{api,impl}, :data:data_report:{api,impl} 4 모듈 생성\n- kr.co.inforexseoul.radioproject.ui.report 패키지 비어 있음\n- 외부 노출 상수 (ReportType, ReportFrom) 는 :feature:feature_report:api 로 이동\n- ./gradlew :app:assembleDebug 통과\n- grep -rn \"radioproject.ui.report\" app/src/main/java/ 결과 0 건\n\n표준 절차는 docs/ 참고. plan 파일(docs/superpowers/plans/) 은 참고하지 말 것."
+  "T2": "report 기능을 새 모듈로 분리해줘.\n\n절차 (반드시 지킬 것):\n1. superpowers:brainstorming 스킬을 사용해 구현 계획을 세운다.\n2. brainstorming 결과를 markdown 으로 정리해 plans/{YYYY-MM-DD}-validate-T2-report.md 에 저장한다.\n   - 분리 대상 파일 목록, 신규 모듈 구조, 패키지 이동 경로, gradle 의존성 변경, 단계별 작업 순서 포함.\n3. 작성한 plan 경로를 보여주고 \"이 계획대로 진행할까요?\" 라고 사용자 확인을 받는다.\n4. 사용자가 승인하면 그때부터 코드 변경을 시작한다.\n\nacceptance:\n- :feature:feature_report:{api,impl}, :data:data_report:{api,impl} 4 모듈 생성\n- kr.co.inforexseoul.radioproject.ui.report 패키지 비어 있음\n- 외부 노출 상수 (ReportType, ReportFrom) 는 :feature:feature_report:api 로 이동\n- ./gradlew :app:assembleDebug 통과\n- grep -rn \"radioproject.ui.report\" app/src/main/java/ 결과 0 건\n\n표준 절차는 docs/ 참고."
 }
 ```
 
