@@ -1,12 +1,12 @@
 ---
 name: harness-validate
-description: harness 효과 측정 세션을 시작·종료한다. /harness-validate start {T1|T2} {none|root|module} 로 시작, /harness-validate done 으로 종료. transcript 자동 파싱으로 tool_call·token 수집, rubric 기반 4 개 수동 항목 입력 후 JSON + 채점용 markdown 저장. 한 세션 = 한 trial 원칙. dalla 모듈 분리 작업 (Phase 1-4 profile, Phase 1-5 report) 측정용.
+description: harness 효과 측정 세션을 시작·종료한다. /harness-validate start {T1|T2|T3} {none|root|module} 로 시작, /harness-validate done 으로 종료. transcript 자동 파싱으로 tool_call·token 수집, rubric 기반 4 개 수동 항목 입력 후 JSON + 채점용 markdown 저장. 한 세션 = 한 trial 원칙. dalla 모듈 분리 작업 (Phase 1-4 profile, Phase 1-5 report, Phase 1-6 webview) 측정용.
 model: opus
 ---
 
 # Harness-Validate Skill — harness 효과 측정 (n=1)
 
-총 6 trial = 2 task (T1 profile / T2 report) × 3 harness (none / root / module).
+총 9 trial = 3 task (T1 profile / T2 report / T3 webview) × 3 harness (none / root / module).
 3 터미널 병렬 운영. **한 세션 = 한 trial.** trial 종료 후 `/clear` → `exit` → 새 세션.
 
 ## 트리거
@@ -28,6 +28,7 @@ model: opus
 |------|------|----------|
 | T1 | profile 기능을 `:feature:feature_profile:{api,impl}` + `:data:data_profile:{api,impl}` 로 분리 | `docs/superpowers/plans/2026-04-29-phase-1-4-profile.md` |
 | T2 | report 기능을 `:feature:feature_report:{api,impl}` + `:data:data_report:{api,impl}` 로 분리 | `docs/superpowers/plans/2026-04-29-phase-1-5-report.md` |
+| T3 | webview 기능을 `:feature:feature_webview:{api,impl}` + `:data:data_webview:{api,impl}` 로 분리 | `docs/superpowers/plans/2026-04-29-phase-1-6-webview.md` |
 
 > 측정 시 prompt 는 acceptance 만 알려주는 P-3 방식. plan 파일은 **참조하지 말 것** 으로 명시한다 (LLM 이 plan 을 그대로 따라 하면 harness 효과가 plan 디테일에 흡수됨).
 
@@ -49,12 +50,12 @@ model: opus
 
 ### Step 1: 인자 검증
 
-- `task-id`: T1 / T2
+- `task-id`: T1 / T2 / T3
 - `harness`: none / root / module
 
 오류 시 출력 후 종료:
 ```
-사용법: /harness-validate start {T1|T2} {none|root|module}
+사용법: /harness-validate start {T1|T2|T3} {none|root|module}
 ```
 
 ### Step 2: 신선한 세션 검증 (안전장치)
@@ -89,7 +90,9 @@ USER_MSG_COUNT=$(jq -s '[.[] | select(.type == "user")] | length' "$LATEST_JSONL
 {
   "T1": "profile 기능을 새 모듈로 분리해줘.\n\n절차 (반드시 지킬 것):\n1. superpowers:brainstorming 스킬을 사용해 구현 계획을 세운다.\n2. brainstorming 결과를 markdown 으로 정리해 plans/{YYYY-MM-DD}-validate-T1-profile.md 에 저장한다.\n   - 분리 대상 파일 목록, 신규 모듈 구조, 패키지 이동 경로, gradle 의존성 변경, 단계별 작업 순서 포함.\n3. 작성한 plan 경로를 보여주고 \"이 계획대로 진행할까요?\" 라고 사용자 확인을 받는다.\n4. 사용자가 승인하면 그때부터 코드 변경을 시작한다.\n\nacceptance:\n- :feature:feature_profile:{api,impl}, :data:data_profile:{api,impl} 4 모듈 생성\n- kr.co.inforexseoul.radioproject.ui.profile 패키지 비어 있음\n- ./gradlew :app:assembleDebug 통과\n- grep -rn \"radioproject.ui.profile\" app/src/main/java/ 결과 0 건\n\n표준 절차는 docs/ 참고.",
 
-  "T2": "report 기능을 새 모듈로 분리해줘.\n\n절차 (반드시 지킬 것):\n1. superpowers:brainstorming 스킬을 사용해 구현 계획을 세운다.\n2. brainstorming 결과를 markdown 으로 정리해 plans/{YYYY-MM-DD}-validate-T2-report.md 에 저장한다.\n   - 분리 대상 파일 목록, 신규 모듈 구조, 패키지 이동 경로, gradle 의존성 변경, 단계별 작업 순서 포함.\n3. 작성한 plan 경로를 보여주고 \"이 계획대로 진행할까요?\" 라고 사용자 확인을 받는다.\n4. 사용자가 승인하면 그때부터 코드 변경을 시작한다.\n\nacceptance:\n- :feature:feature_report:{api,impl}, :data:data_report:{api,impl} 4 모듈 생성\n- kr.co.inforexseoul.radioproject.ui.report 패키지 비어 있음\n- 외부 노출 상수 (ReportType, ReportFrom) 는 :feature:feature_report:api 로 이동\n- ./gradlew :app:assembleDebug 통과\n- grep -rn \"radioproject.ui.report\" app/src/main/java/ 결과 0 건\n\n표준 절차는 docs/ 참고."
+  "T2": "report 기능을 새 모듈로 분리해줘.\n\n절차 (반드시 지킬 것):\n1. superpowers:brainstorming 스킬을 사용해 구현 계획을 세운다.\n2. brainstorming 결과를 markdown 으로 정리해 plans/{YYYY-MM-DD}-validate-T2-report.md 에 저장한다.\n   - 분리 대상 파일 목록, 신규 모듈 구조, 패키지 이동 경로, gradle 의존성 변경, 단계별 작업 순서 포함.\n3. 작성한 plan 경로를 보여주고 \"이 계획대로 진행할까요?\" 라고 사용자 확인을 받는다.\n4. 사용자가 승인하면 그때부터 코드 변경을 시작한다.\n\nacceptance:\n- :feature:feature_report:{api,impl}, :data:data_report:{api,impl} 4 모듈 생성\n- kr.co.inforexseoul.radioproject.ui.report 패키지 비어 있음\n- 외부 노출 상수 (ReportType, ReportFrom) 는 :feature:feature_report:api 로 이동\n- ./gradlew :app:assembleDebug 통과\n- grep -rn \"radioproject.ui.report\" app/src/main/java/ 결과 0 건\n\n표준 절차는 docs/ 참고.",
+
+  "T3": "webview 기능을 새 모듈로 분리해줘.\n\n절차 (반드시 지킬 것):\n1. superpowers:brainstorming 스킬을 사용해 구현 계획을 세운다.\n2. brainstorming 결과를 markdown 으로 정리해 plans/{YYYY-MM-DD}-validate-T3-webview.md 에 저장한다.\n   - 분리 대상 파일 목록, 신규 모듈 구조 (interface + Hilt 바인딩 포함), 패키지 이동 경로, gradle 의존성 변경, 단계별 작업 순서 포함.\n3. 작성한 plan 경로를 보여주고 \"이 계획대로 진행할까요?\" 라고 사용자 확인을 받는다.\n4. 사용자가 승인하면 그때부터 코드 변경을 시작한다.\n\nacceptance:\n- :feature:feature_webview:{api,impl}, :data:data_webview:{api,impl} 4 모듈 생성\n- kr.co.inforexseoul.radioproject.ui.webview 패키지 비어 있음\n- 외부 노출 진입점은 :feature:feature_webview:api 의 interface 로 추상화하고 impl 에서 Hilt 바인딩 제공\n- ./gradlew :app:assembleDebug 통과\n- grep -rn \"radioproject.ui.webview\" app/src/main/java/ 결과 0 건\n\n표준 절차는 docs/ 참고."
 }
 ```
 
@@ -352,7 +355,7 @@ rm docs/superpowers/validation/.session.json /tmp/harness-validate-slice.jsonl
   4. /harness-validate start {다음 task} {harness}
 
 채점 안내:
-  6 trial 이 모두 끝난 뒤 .md 파일을 열어 Q1~Q4 를 채점하세요.
+  9 trial 이 모두 끝난 뒤 .md 파일을 열어 Q1~Q4 를 채점하세요.
   현재 .json 의 manual 항목은 이번 done 시 입력한 값입니다 —
   채점 결과가 다르면 직접 수정해 정합성을 맞춥니다.
 ```
@@ -402,13 +405,13 @@ git worktree remove ../dalla-module
 
 ### task 단위 동기화 권장
 
-T1 (profile) 을 세 worktree 모두 끝낸 뒤 T2 (report) 시작. 즉 (task × harness) 가 아닌 task 단위로 다 같이 진행. 캐시 / 채점 일관성 확보 목적.
+T1 (profile) 을 세 worktree 모두 끝낸 뒤 T2 (report), 그 다음 T3 (webview) 순서. 즉 (task × harness) 가 아닌 task 단위로 다 같이 진행. 캐시 / 채점 일관성 확보 목적.
 
 ### 채점 운영
 
-- 채점은 6 trial 이 모두 끝난 뒤 `.md` 파일들을 차례로 열어 일괄 진행
+- 채점은 9 trial 이 모두 끝난 뒤 `.md` 파일들을 차례로 열어 일괄 진행
 - 가능하면 파일명에서 harness 부분을 일시적으로 가리고 채점 (간이 blinding)
-- correction_prompt / repeated_mistake 의 카테고리 분류는 6 trial 동안 일관 기준 유지
+- correction_prompt / repeated_mistake 의 카테고리 분류는 9 trial 동안 일관 기준 유지
 - done 시 입력한 manual 값과 일괄 채점 결과가 다르면 .json 의 manual 항목을 수정
 
 ### 결과 수합
