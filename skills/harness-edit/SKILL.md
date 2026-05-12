@@ -97,7 +97,7 @@ shared/harness/{name}.md 의 섹션 목록:
 
 ## Step 6: 검증 (Self-Critique)
 
-`shared/verify-docs.md` 를 Read tool 로 읽고 5 축 검증을 실행한다.
+`shared/verify-docs.md` 를 Read tool 로 읽고 6 축 검증을 실행한다.
 
 > 검증 대상은 인자 없음 = 항상 7 개 전체. 단일 파일 수정이라도 cross-file 일관성을 보장하기 위해 7 개 모두 검사.
 

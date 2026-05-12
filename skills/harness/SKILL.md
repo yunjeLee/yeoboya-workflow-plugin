@@ -88,7 +88,7 @@ Glob tool 로 아래 파일 존재 여부를 확인한다.
 
 ### Phase 3 — 파일 저장
 
-아래 순서로 파일을 저장한다. CLAUDE.md 가 docs/ 를 `@` 로 참조하므로 docs/ 전체를 먼저 저장하고 CLAUDE.md 를 마지막에 저장한다.
+아래 순서로 파일을 저장한다. CLAUDE.md 가 `@docs/ARCHITECTURE.md`, `@docs/CONVENTIONS.md` 를 자동 적재 대상으로 참조하므로 docs/ 전체를 먼저 저장하고 CLAUDE.md 를 마지막에 저장한다. 나머지 4 개 docs (PRD / ADR / UI_GUIDE / TESTING) 는 `@` 적재 대상이 아니지만 CLAUDE.md 의 "외부 문서 (필요 시 Read)" 가이드에서 경로로 참조되므로 동일하게 먼저 저장한다.
 
 1. `docs/PRD.md`
 2. `docs/ARCHITECTURE.md`
@@ -104,7 +104,7 @@ Glob tool 로 아래 파일 존재 여부를 확인한다.
 
 ## Step 5: 검증 (Self-Critique)
 
-`shared/verify-docs.md` 를 Read tool 로 읽고 5 축 검증 / 심각도 분류 / 사용자 선택 처리를 그대로 따른다.
+`shared/verify-docs.md` 를 Read tool 로 읽고 6 축 검증 / 심각도 분류 / 사용자 선택 처리를 그대로 따른다.
 
 > 검증 대상은 항상 7 개 전체. 인자 없음. Case 2 라도 "기존 파일 + 새로 생성한 파일" 모두 검증한다 (cross-file 일관성 보장).
 

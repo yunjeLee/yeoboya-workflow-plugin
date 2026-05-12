@@ -33,9 +33,9 @@
 | s1 | `## CRITICAL 규칙` | 대화형 (예시 생성형) | 1 |
 | s2 | `## 피해야 할 것 (AVOID)` | 대화형 (기본 템플릿 확인) | 1 |
 | s3 | `## Claude Code 응답 규칙` | 대화형 (기본 템플릿 확인) | 1 |
-| s4 | `## (참조 블록)` | 정적 | 0 |
+| s4 | `## (참조 블록 + 외부 문서 가이드)` | 정적 | 0 |
 
-> s4 는 `@docs/...` 참조를 모은 블록. 단일 H2 가 아니라 여러 짧은 H2 (`## 프로덕트 개요` / `## 아키텍처` / ... ) 가 한 묶음으로 들어간다. 부분 수정 시 묶음 단위로 다룬다.
+> s4 는 `## 아키텍처` (`@docs/ARCHITECTURE.md`), `## 팀 컨벤션 / 작업 규칙` (`@docs/CONVENTIONS.md`), `## 외부 문서 (필요 시 Read)` 3 개 H2 묶음이다. 앞 2 개만 `@` 참조로 매 turn 자동 적재되고, 나머지 4 개 docs (PRD / ADR / UI_GUIDE / TESTING) 는 "외부 문서 (필요 시 Read)" 가이드에 한 줄씩 명시되어 LLM 이 필요할 때 Read 한다. 부분 수정 시 3 개 H2 묶음 단위로 다룬다.
 
 ## 섹션별 생성 로직
 
@@ -126,29 +126,21 @@
 - 장황한 이론보다 실무 적용 중심 설명
 ```
 
-### s4: 참조 블록 (정적)
+### s4: 참조 블록 + 외부 문서 가이드 (정적)
 
-`@docs/PRD.md`, `@docs/ARCHITECTURE.md`, `@docs/ADR.md`, `@docs/UI_GUIDE.md`, `@docs/TESTING.md`, `@docs/CONVENTIONS.md` 를 출력 템플릿의 해당 위치에 그대로 기록한다. 대화 없음.
+매 turn 자동 적재 (`@` 참조) 대상은 **2 개로 제한**한다 — `@docs/ARCHITECTURE.md`, `@docs/CONVENTIONS.md`. 나머지 4 개 (PRD / ADR / UI_GUIDE / TESTING) 는 `## 외부 문서 (필요 시 Read)` 섹션의 가이드 리스트로 기록하여 LLM 이 필요할 때 Read tool 로 읽도록 한다. 대화 없음.
+
+가이드 리스트는 출력 템플릿의 형식 그대로 생성한다. UI_GUIDE.md 가 생성되지 않은 프로젝트 (Case 2 에서 UI_GUIDE 부재) 라면 UI_GUIDE 줄만 제외하고 나머지 3 줄은 그대로 기록한다.
+
+> 결정 근거: `/harness-validate` 측정 결과 (`docs/superpowers/progress/2026-05-12-harness-compactness.md`) — 6 개 모두 자동 적재 시 prefix ≈ 8K 토큰이 매 LLM call 마다 cache_read 로 누적. 핵심 2 개만 적재 + 나머지는 on-demand Read 로 prefix ~50% 감소 효과 확보.
 
 ## 출력 템플릿
 
 ````markdown
 # 프로젝트: {프로젝트명}
 
-## 프로덕트 개요
-@docs/PRD.md
-
 ## 아키텍처
 @docs/ARCHITECTURE.md
-
-## 기술 결정 (ADR)
-@docs/ADR.md
-
-## 디자인 가이드
-@docs/UI_GUIDE.md
-
-## 테스트 전략
-@docs/TESTING.md
 
 ## 팀 컨벤션 / 작업 규칙
 @docs/CONVENTIONS.md
@@ -161,6 +153,12 @@
 
 ## Claude Code 응답 규칙
 {s3 에서 최종 확정된 리스트}
+
+## 외부 문서 (필요 시 Read)
+- docs/PRD.md       — 새 화면 / 기능 설계 시
+- docs/ADR.md       — DI / 모듈 / 라이브러리 선택 논의 시
+- docs/UI_GUIDE.md  — Compose 화면 작성 시 (디자인 시스템 컴포넌트 확인 필수)
+- docs/TESTING.md   — 테스트 코드 작성 시
 ````
 
 > 팀 컨벤션 / 작업 규칙 / 사용 라이브러리 등은 `docs/CONVENTIONS.md` 에서 수집한다. CLAUDE.md 는 `@` 참조로 위임. `~/.claude/CLAUDE.md` 참고에 동의한 경우 해당 파일의 "피해야 할 것", "팀 컨벤션", "리팩토링 원칙", "우선순위" 등을 conventions 모듈의 예시 생성에 활용한다.

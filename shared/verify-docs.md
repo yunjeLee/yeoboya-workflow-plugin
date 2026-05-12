@@ -1,6 +1,6 @@
 # Verify-Docs — 하네스 문서 검증 모듈
 
-호출자 (`/harness-critique`, `/harness`, `/harness-edit`) 가 Read tool 로 읽고 지침을 따른다. 5 축 검증으로 모호성 / 일관성 / 완전성 / 참조 무결성 / 레포 실상 결함을 한 번에 잡는다.
+호출자 (`/harness-critique`, `/harness`, `/harness-edit`) 가 Read tool 로 읽고 지침을 따른다. 6 축 검증으로 모호성 / 일관성 / 완전성 / 참조 무결성 / 레포 실상 / 압축도 결함을 한 번에 잡는다.
 
 ## 진입 인터페이스
 
@@ -15,7 +15,7 @@
 
 ---
 
-## 5 축 체크
+## 6 축 체크
 
 ### 축 1. ambiguity — 검증 불가능한 추상 표현
 
@@ -177,9 +177,44 @@ reality-check CRITICAL — docs/ARCHITECTURE.md `패턴`
 
 ---
 
+### 축 6. compactness — prefix 비대 / 산문 과다 / 중복
+
+**대상 파일**: CLAUDE.md 와 `@` 자동 적재 대상 (`docs/ARCHITECTURE.md`, `docs/CONVENTIONS.md`). 나머지 docs (PRD / ADR / UI_GUIDE / TESTING) 는 자동 적재 대상이 아니므로 본 축의 합산 토큰 계산에서 제외.
+
+**탐지 항목**:
+
+| # | 검사 | 임계값 | 심각도 |
+|---|------|--------|:------:|
+| 1 | prefix 합산 토큰 (CLAUDE.md + `@` 적재 docs 의 합) | > 6K 토큰 | WARNING |
+| 2 | 단일 H2 섹션 길이 | > 1K 토큰 | WARNING |
+| 3 | 산문 라인 비율 (코드 블록 / 표 / 리스트 / 헤더가 아닌 줄글) | > 30% | INFO |
+| 4 | 동일 규칙이 2 곳 이상 명시 (예: CLAUDE.md CRITICAL ↔ ADR.md 결정 / ARCHITECTURE.md 패턴 ↔ ADR.md 결정) | 1 건 이상 | INFO |
+
+**측정 방법**:
+- 토큰 추정: `wc -c {파일}` × 0.4 (한국어 + 영어 + 코드 혼합 경험치)
+- 산문 비율: 전체 라인 중 ` ``` ` / `|` / `-` / `*` / `#` 으로 시작하지 않는 라인의 비율
+- 중복 규칙: CLAUDE.md 의 CRITICAL 항목 각각에 대해 ADR.md / ARCHITECTURE.md 본문 Grep — 같은 핵심 키워드 (Hilt / Compose / MVI / Repository 등) 가 같은 규칙 표현으로 2 곳 이상 등장하면 1 건
+
+**제외 대상**:
+- `docs/ADR.md` 의 "트레이드오프" 단락은 단일 섹션 길이 검사에서 제외 (ADR 의 본질적 구조)
+- `docs/ARCHITECTURE.md` 의 디렉토리 트리 코드 블록은 산문 비율 계산 시 코드 블록으로 카운트
+
+**권장 수정 포맷**:
+
+```
+compactness WARNING — prefix 합산 7.2K 토큰 (목표 ≤ 6K)
+  CLAUDE.md : 3.9K
+  docs/ARCHITECTURE.md : 6.0K   (← 가장 큰 기여)
+  docs/CONVENTIONS.md : 2.7K
+  권장 A: ARCHITECTURE.md 디렉토리 트리 (L29-62) 를 `docs/MODULE_MAP.md` 로 위임
+  권장 B: ARCHITECTURE.md 와 ADR.md 의 "마이그레이션 방향" 중복 통합 (ADR-007 한 곳)
+```
+
+---
+
 ## 심각도 분류
 
-상단의 5 축 표에 명시된 심각도를 따른다. 등급별 의미:
+상단의 6 축 표에 명시된 심각도를 따른다. 등급별 의미:
 
 - **CRITICAL**: 하네스 가드레일이 깨지는 결함. 자동 수정 1 순위.
 - **WARNING**: 검증 불가능한 표현 / 부가 정보 부재 / 약한 실상 불일치. 자동 수정 후보지만 사용자 확인 권장.
@@ -215,7 +250,7 @@ reality-check CRITICAL — docs/ARCHITECTURE.md `패턴`
 ```
 ## Verify-Docs 결과
 
-검출된 이슈 없음 (5 축 모두 통과)
+검출된 이슈 없음 (6 축 모두 통과)
 
 완료 리포트로 진행합니다.
 ```
@@ -228,7 +263,7 @@ reality-check CRITICAL — docs/ARCHITECTURE.md `패턴`
 
 - CRITICAL + WARNING 항목만 대상으로 Edit tool 로 권장 수정을 일괄 반영.
 - reality-check 의 경우 "권장 A / B" 같이 선택지가 여러 개면 **자동 수정에서 제외**하고 항목별 질문으로 승격.
-- 수정 후 5 축 재점검 1 회 실행.
+- 수정 후 6 축 재점검 1 회 실행.
 - 새 이슈 발견 시 다시 출력 (재점검 2 회까지만, 3 회째부터는 "완료 리포트로 진행" 으로 강제 종료하고 남은 이슈를 리포트에 기록).
 - 이슈 없음 → 완료 리포트.
 

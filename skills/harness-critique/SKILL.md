@@ -1,12 +1,12 @@
 ---
 name: harness-critique
-description: "하네스 문서 세트(CLAUDE.md + docs/) 의 품질을 5축(모호성/일관성/완전성/참조 무결성/레포 실상) 으로 검증한다. /harness-critique, 하네스 검증, 하네스 비평, 일관성 점검, 문서 품질 확인 요청 시 반드시 사용한다."
+description: "하네스 문서 세트(CLAUDE.md + docs/) 의 품질을 6축(모호성/일관성/완전성/참조 무결성/레포 실상/압축도) 으로 검증한다. /harness-critique, 하네스 검증, 하네스 비평, 일관성 점검, 문서 품질 확인 요청 시 반드시 사용한다."
 model: opus
 ---
 
 # Harness-Critique Skill — 하네스 문서 검증
 
-이미 생성된 하네스 문서 세트(7 개) 를 5 축으로 검증한다. `/harness` 또는 `/harness-edit` 안에서도 자동 호출되지만, 이 명령은 **수정 없이 검증만** 따로 부르고 싶을 때 진입점이다 (예: 팀원이 IDE 로 직접 편집한 후 점검).
+이미 생성된 하네스 문서 세트(7 개) 를 6 축으로 검증한다. `/harness` 또는 `/harness-edit` 안에서도 자동 호출되지만, 이 명령은 **수정 없이 검증만** 따로 부르고 싶을 때 진입점이다 (예: 팀원이 IDE 로 직접 편집한 후 점검).
 
 ## 트리거
 - `/harness-critique` — 프로젝트 루트에서 실행
@@ -42,7 +42,7 @@ Glob tool 로 아래 파일 존재 여부를 확인한다.
 
 ## Step 2: 검증 모듈 호출
 
-`shared/verify-docs.md` 를 Read tool 로 읽고 5 축 검증 / 심각도 분류 / 사용자 선택 처리를 그대로 따른다.
+`shared/verify-docs.md` 를 Read tool 로 읽고 6 축 검증 / 심각도 분류 / 사용자 선택 처리를 그대로 따른다.
 
 > 인자 없음. 항상 7 개 전체 (핵심 6 + 부가 1 의 존재분) 검증.
 
