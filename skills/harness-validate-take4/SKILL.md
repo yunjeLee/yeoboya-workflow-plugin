@@ -1,6 +1,6 @@
 ---
 name: harness-validate-take4
-description: Take4 harness 효과 측정 세션을 시작·종료한다. T-A (feature_report 재구현 13개 파일) / T-B (SplashActivity 버그 3종 수정) 작업에 대해 W-A (단일 exec 세션) / W-B (subtask 분할 exec 세션) 두 워크플로우로 plan + exec 전체 효과를 측정한다. /harness-validate-take4 plan-start {T-A|T-B} {none|root|module} {W-A|W-B} 로 시작.
+description: Take4 harness 효과 측정 세션을 시작·종료한다. T-A (feature_report 재구현 13개 파일) / T-B (SplashActivity 버그 3종 수정) 작업에 대해 W-A (단일 exec 세션) / W-B (brainstorming으로 subtask 자유 분해 후 분할 세션) 두 워크플로우로 plan + exec 전체 효과를 측정한다. /harness-validate-take4 plan-start {T-A|T-B} {none|root|module} {W-A|W-B} 로 시작.
 model: opus
 ---
 
@@ -13,17 +13,14 @@ model: opus
 | Task T-A | feature_report 재구현 (13개 파일) |
 | Task T-B | SplashActivity 버그 3종 수정 |
 | Workflow W-A | plan + exec 단일 세션 |
-| Workflow W-B | plan 1회 + subtask 별 분할 세션 (T-A: 4개 / T-B: 3개) |
+| Workflow W-B | plan 1회 + subtask 별 분할 세션 (subtask 수는 LLM 이 brainstorming 으로 결정) |
 | 측정 조건 | none / root / module |
 
 ### W-B subtask 구성
 
-| Task | Subtask 1 | Subtask 2 | Subtask 3 | Subtask 4 |
-|------|-----------|-----------|-----------|-----------|
-| T-A | data 계층 | 진입점 | 차단 | 신고내용 (→ exec-done) |
-| T-B | Bug 1 | Bug 2 | Bug 3 (→ exec-done) | — |
-
-W-B 마지막 subtask는 `sub-done` 대신 `exec-done` 으로 전체 집계한다.
+W-B 는 plan 작성 시 LLM 이 brainstorming 으로 subtask 수와 경계를 자유롭게 결정한다.
+plan 의 `## Subtask N` 헤더가 세션 분할 기준이 된다.
+마지막 subtask 는 `sub-done` 대신 `exec-done` 으로 전체 집계한다.
 
 ## 명령 체계
 
@@ -192,15 +189,13 @@ acceptance:
 - ReportLauncher.show() 호출 시 ReportDialog 가 열린다
 
 절차:
-1. superpowers:writing-plans 스킬을 사용한다.
-2. 결과 plan 을 docs/superpowers/plans/T-A-{harness}-generated.md 에 저장한다.
+1. superpowers:brainstorming 스킬로 복구 작업을 분석하고 subtask 구조와 수를 결정한다.
+2. superpowers:writing-plans 스킬로 plan 을 작성한다.
+3. 결과 plan 을 docs/superpowers/plans/T-A-{harness}-generated.md 에 저장한다.
    (W-A 와 동일 파일명 — W-B 는 동일 plan 을 사용한다)
-3. plan 은 아래 4개 subtask 단위로 구성한다:
-   - Subtask 1: data 계층 (ReportService, DataSourceImpl, RepositoryImpl, DI 2개)
-   - Subtask 2: 진입점 (ReportDialog, ReportViewModel, ReportLauncherImpl, FeatureModule)
-   - Subtask 3: 차단 (ReportBlockFragment, ReportBlockViewModel)
-   - Subtask 4: 신고 내용 (ReportDescribeFragment, ReportDescribeViewModel)
-4. 코드는 작성하지 않는다 — plan 작성까지만.
+4. plan 의 각 subtask 는 반드시 "## Subtask N" 형식 헤더로 구분한다
+   (sub-start 가 이 헤더를 기준으로 세션을 분할하기 때문).
+5. 코드는 작성하지 않는다 — plan 작성까지만.
 
 ─────────────────────────────────────────
 plan 작성 완료 → /harness-validate-take4 plan-done
@@ -240,13 +235,12 @@ acceptance:
 - ./gradlew :feature:feature_splash:impl:compileDebugKotlin 통과
 
 절차:
-1. superpowers:writing-plans 스킬을 사용한다.
-2. 결과 plan 을 docs/superpowers/plans/T-B-{harness}-generated.md 에 저장한다.
-3. plan 은 아래 3개 subtask 단위로 구성한다:
-   - Subtask 1: Bug 1 진단 + 수정
-   - Subtask 2: Bug 2 진단 + 수정
-   - Subtask 3: Bug 3 진단 + 수정
-4. 코드는 작성하지 않는다 — plan 작성까지만.
+1. superpowers:brainstorming 스킬로 버그 수정 작업을 분석하고 subtask 구조와 수를 결정한다.
+2. superpowers:writing-plans 스킬로 plan 을 작성한다.
+3. 결과 plan 을 docs/superpowers/plans/T-B-{harness}-generated.md 에 저장한다.
+4. plan 의 각 subtask 는 반드시 "## Subtask N" 형식 헤더로 구분한다
+   (sub-start 가 이 헤더를 기준으로 세션을 분할하기 때문).
+5. 코드는 작성하지 않는다 — plan 작성까지만.
 
 ─────────────────────────────────────────
 plan 작성 완료 → /harness-validate-take4 plan-done
@@ -339,7 +333,7 @@ task별 rubric 안내:
 ```
 [채점 rubric — T-A plan phase]
 - plan_layer_structure_correct [y/n]
-    data → feature 계층 순서 + (W-B: 4개 subtask 단위) 구성 여부
+    data → feature 계층 순서 구성 여부 + (W-B: plan 에 ## Subtask N 헤더 존재 여부)
 - plan_dependency_correct [y/n]
     DI 모듈, Hilt 바인딩, 의존성 방향이 plan 에 포함됐는지
 - plan_acceptance_coverage [0~4]
@@ -691,10 +685,10 @@ task + workflow별 rubric 안내:
 
 **T-A W-B exec rubric (전체 집계):**
 ```
-[채점 rubric — T-A exec / W-B (4 subtask 전체)]
+[채점 rubric — T-A exec / W-B ({TOTAL_SUBTASKS} subtask 전체)]
 - buildable [y/n]: acceptance 4개 전체 통과
-- hallucination_count [숫자]: 4개 subtask 세션 전체 합산
-- correction_prompt_count [숫자]: 4개 subtask 세션 전체 합산
+- hallucination_count [숫자]: {TOTAL_SUBTASKS}개 subtask 세션 전체 합산
+- correction_prompt_count [숫자]: {TOTAL_SUBTASKS}개 subtask 세션 전체 합산
 - repeated_mistake_count [숫자]: 동일 카테고리 실수 2회 이상 (세션 간 포함)
 - subtask_context_loss_count [숫자]: /clear 후 이전 subtask 결과 오인 / 재탐색 횟수
 ```
@@ -711,11 +705,11 @@ task + workflow별 rubric 안내:
 
 **T-B W-B exec rubric (전체 집계):**
 ```
-[채점 rubric — T-B exec / W-B (3 subtask 전체)]
+[채점 rubric — T-B exec / W-B ({TOTAL_SUBTASKS} subtask 전체)]
 - buildable [y/n]: acceptance 4개 전체 통과
 - bugs_fixed_count [0~3]: 실제로 수정된 버그 수
-- hallucination_count [숫자]: 3개 subtask 세션 전체 합산
-- correction_prompt_count [숫자]: 3개 subtask 세션 전체 합산
+- hallucination_count [숫자]: {TOTAL_SUBTASKS}개 subtask 세션 전체 합산
+- correction_prompt_count [숫자]: {TOTAL_SUBTASKS}개 subtask 세션 전체 합산
 - repeated_mistake_count [숫자]: 동일 카테고리 실수 2회 이상
 - subtask_context_loss_count [숫자]: /clear 후 이전 버그 수정 상태 오인 횟수
 ```
@@ -733,8 +727,8 @@ Q4. repeated_mistake_count [숫자]:
 **T-A W-B:**
 ```
 Q1. buildable [y/n]:
-Q2. hallucination_count [숫자, 4 subtask 합산]:
-Q3. correction_prompt_count [숫자, 4 subtask 합산]:
+Q2. hallucination_count [숫자, {TOTAL_SUBTASKS} subtask 합산]:
+Q3. correction_prompt_count [숫자, {TOTAL_SUBTASKS} subtask 합산]:
 Q4. repeated_mistake_count [숫자]:
 Q5. subtask_context_loss_count [숫자]:
 ```
@@ -752,8 +746,8 @@ Q5. repeated_mistake_count [숫자]:
 ```
 Q1. buildable [y/n]:
 Q2. bugs_fixed_count [0~3]:
-Q3. hallucination_count [숫자, 3 subtask 합산]:
-Q4. correction_prompt_count [숫자, 3 subtask 합산]:
+Q3. hallucination_count [숫자, {TOTAL_SUBTASKS} subtask 합산]:
+Q4. correction_prompt_count [숫자, {TOTAL_SUBTASKS} subtask 합산]:
 Q5. repeated_mistake_count [숫자]:
 Q6. subtask_context_loss_count [숫자]:
 ```
@@ -853,7 +847,7 @@ rm -f /tmp/harness-validate-take4-slice.jsonl
 
 - `task-id`: T-A / T-B
 - `harness`: none / root / module
-- `subtask_no`: 1 ~ (T-A: 4 / T-B: 3)
+- `subtask_no`: 1 ~ (plan 의 ## Subtask N 헤더 수)
 
 오류 시:
 ```
@@ -925,222 +919,83 @@ with open("docs/superpowers/validation/.session.json", "w") as f:
 PY
 ```
 
-### Step 6: subtask prompt 출력
+### Step 6: subtask prompt 동적 출력
 
-`{harness}` 치환 후 task + subtask번호에 맞는 prompt를 출력한다.
+plan 파일을 읽어 총 subtask 수와 해당 섹션 내용을 추출한 뒤 prompt 를 생성한다.
 
-마지막 subtask 여부를 안내한다 (T-A: 4번 / T-B: 3번이 마지막 → exec-done 사용).
+```bash
+PLAN_FILE="docs/superpowers/plans/${TASK_ID}-${HARNESS}-generated.md"
 
----
+# 총 subtask 수 카운트
+TOTAL_SUBTASKS=$(grep -cE '^## Subtask [0-9]+' "$PLAN_FILE")
 
-#### T-A Subtask Prompts
+# 마지막 subtask 여부
+IS_LAST=$( [ "$SUBTASK_NO" = "$TOTAL_SUBTASKS" ] && echo "true" || echo "false" )
 
-**Subtask 1 (data 계층):**
+# plan 에서 Subtask N 섹션 추출 (다음 ## Subtask 헤더 또는 파일 끝까지)
+NEXT=$((SUBTASK_NO + 1))
+SUBTASK_CONTENT=$(awk \
+  "/^## Subtask ${SUBTASK_NO}$/{found=1; next} \
+   found && /^## Subtask [0-9]+/{exit} \
+   found{print}" "$PLAN_FILE" | head -80)
+
+# 이전 subtask 완료 문구 생성 (N>=2 일 때)
+if [ "$SUBTASK_NO" -ge 2 ]; then
+  PREV_DONE="Subtask 1 ~ $((SUBTASK_NO - 1)) 은 이미 완료된 상태다."
+else
+  PREV_DONE=""
+fi
 ```
-측정 시작 [T-A / harness={harness} / workflow=W-B / subtask=1]
-사용할 plan: docs/superpowers/plans/T-A-{harness}-generated.md
+
+출력 형식 (`{변수}` 는 위 값으로 치환):
+
+```
+측정 시작 [{TASK_ID} / harness={HARNESS} / workflow=W-B / subtask={SUBTASK_NO}/{TOTAL_SUBTASKS}]
+사용할 plan: {PLAN_FILE}
 ─────────────────────────────────────────
 아래 prompt 를 그대로 입력하세요:
 
-feature_report 기능 복구 작업 중 Subtask 1 을 진행한다.
+{TASK_ID} 작업 중 Subtask {SUBTASK_NO} / {TOTAL_SUBTASKS} 을 진행한다.
+{PREV_DONE}
 
-plan 파일: docs/superpowers/plans/T-A-{harness}-generated.md
-이번 세션에서 구현할 범위: Subtask 1 (data 계층)
+plan 파일: {PLAN_FILE}
+이번 세션에서 구현할 범위: plan 의 아래 ## Subtask {SUBTASK_NO} 섹션을 따른다.
 
-구현 대상:
-- data/data_report/impl/.../ReportService.kt
-- data/data_report/impl/.../ReportDataSourceImpl.kt
-- data/data_report/impl/.../ReportRepositoryImpl.kt
-- data/data_report/impl/.../di/ReportDataModule.kt
-- data/data_report/impl/.../di/ProvidesReportService.kt
+--- plan Subtask {SUBTASK_NO} 시작 ---
+{SUBTASK_CONTENT}
+--- plan Subtask {SUBTASK_NO} 끝 ---
 
 절차:
-1. plan 의 Subtask 1 부분을 읽는다.
-2. data_profile:impl 의 패턴을 참조해 구현한다.
-3. superpowers:executing-plans 스킬을 인라인으로 사용해 실행한다
+1. 위 plan 섹션 전체를 숙지한다.
+2. superpowers:executing-plans 스킬을 인라인으로 사용해 실행한다
    (subagent 분산 실행 금지 — 현재 세션에서 직접 실행).
-4. Subtask 1 구현 완료 후 세션을 종료한다 (Subtask 2 는 다음 세션).
-
-중간 체크:
-- ./gradlew :data:data_report:impl:compileDebugKotlin 통과 확인
+3. Subtask {SUBTASK_NO} 완료 후 세션을 종료한다.
+[IS_LAST=true 일 때만 추가]
+4. 완료 후 아래 acceptance 를 전체 검증한다:
+   [task 별 acceptance 목록 삽입 — T-A 또는 T-B]
 
 ─────────────────────────────────────────
-완료 → /harness-validate-take4 sub-done
+[IS_LAST=false] 완료 → /harness-validate-take4 sub-done
+[IS_LAST=true]  ⚠ 마지막 subtask — 완료 후 exec-done 으로 전체 집계
+                완료 → acceptance 검증 → /harness-validate-take4 exec-done
 ```
 
-**Subtask 2 (진입점):**
+**task 별 acceptance 목록 (IS_LAST=true 일 때 삽입):**
+
+T-A:
 ```
-측정 시작 [T-A / harness={harness} / workflow=W-B / subtask=2]
-사용할 plan: docs/superpowers/plans/T-A-{harness}-generated.md
-─────────────────────────────────────────
-아래 prompt 를 그대로 입력하세요:
-
-feature_report 기능 복구 작업 중 Subtask 2 를 진행한다.
-Subtask 1 (data 계층) 은 이미 완료된 상태다.
-
-plan 파일: docs/superpowers/plans/T-A-{harness}-generated.md
-이번 세션에서 구현할 범위: Subtask 2 (진입점)
-
-구현 대상:
-- feature/feature_report/impl/.../ReportDialog.kt
-- feature/feature_report/impl/.../ReportViewModel.kt
-- feature/feature_report/impl/.../ReportLauncherImpl.kt
-- feature/feature_report/impl/.../di/ReportFeatureModule.kt
-
-절차:
-1. plan 의 Subtask 2 부분을 읽는다.
-2. feature_profile:impl 의 Dialog / ViewModel 패턴을 참조한다.
-3. superpowers:executing-plans 스킬을 인라인으로 사용해 실행한다
-   (subagent 분산 실행 금지 — 현재 세션에서 직접 실행).
-4. Subtask 2 구현 완료 후 세션을 종료한다.
-
-─────────────────────────────────────────
-완료 → /harness-validate-take4 sub-done
+- ./gradlew :feature:feature_report:impl:compileDebugKotlin 통과
+- ./gradlew :data:data_report:impl:compileDebugKotlin 통과
+- ./gradlew :app:assembleDebug 통과
+- ReportLauncher.show() 호출 시 ReportDialog 가 열린다
 ```
 
-**Subtask 3 (차단):**
+T-B:
 ```
-측정 시작 [T-A / harness={harness} / workflow=W-B / subtask=3]
-사용할 plan: docs/superpowers/plans/T-A-{harness}-generated.md
-─────────────────────────────────────────
-아래 prompt 를 그대로 입력하세요:
-
-feature_report 기능 복구 작업 중 Subtask 3 을 진행한다.
-Subtask 1 (data), Subtask 2 (진입점) 는 이미 완료된 상태다.
-
-plan 파일: docs/superpowers/plans/T-A-{harness}-generated.md
-이번 세션에서 구현할 범위: Subtask 3 (차단)
-
-구현 대상:
-- feature/feature_report/impl/.../block/ReportBlockFragment.kt
-- feature/feature_report/impl/.../block/ReportBlockViewModel.kt
-
-절차:
-1. plan 의 Subtask 3 부분을 읽는다.
-2. feature_profile:impl 의 Fragment / ViewModel 패턴을 참조한다.
-3. superpowers:executing-plans 스킬을 인라인으로 사용해 실행한다
-   (subagent 분산 실행 금지 — 현재 세션에서 직접 실행).
-4. Subtask 3 구현 완료 후 세션을 종료한다.
-
-─────────────────────────────────────────
-완료 → /harness-validate-take4 sub-done
-```
-
-**Subtask 4 (신고내용 — 마지막):**
-```
-측정 시작 [T-A / harness={harness} / workflow=W-B / subtask=4 (마지막)]
-사용할 plan: docs/superpowers/plans/T-A-{harness}-generated.md
-─────────────────────────────────────────
-아래 prompt 를 그대로 입력하세요:
-
-feature_report 기능 복구 작업 중 Subtask 4 (마지막) 를 진행한다.
-Subtask 1·2·3 은 이미 완료된 상태다.
-
-plan 파일: docs/superpowers/plans/T-A-{harness}-generated.md
-이번 세션에서 구현할 범위: Subtask 4 (신고 내용)
-
-구현 대상:
-- feature/feature_report/impl/.../describe/ReportDescribeFragment.kt
-- feature/feature_report/impl/.../describe/ReportDescribeViewModel.kt
-
-절차:
-1. plan 의 Subtask 4 부분을 읽는다.
-2. ReportBlockFragment 패턴을 참조한다.
-3. superpowers:executing-plans 스킬을 인라인으로 사용해 실행한다
-   (subagent 분산 실행 금지 — 현재 세션에서 직접 실행).
-4. 구현 완료 후 acceptance 전체를 검증한다:
-   - ./gradlew :feature:feature_report:impl:compileDebugKotlin
-   - ./gradlew :data:data_report:impl:compileDebugKotlin
-   - ./gradlew :app:assembleDebug
-
-─────────────────────────────────────────
-⚠ 마지막 subtask — 완료 후 sub-done 대신 exec-done 으로 전체 집계
-완료 → acceptance 검증 → /harness-validate-take4 exec-done
-```
-
----
-
-#### T-B Subtask Prompts
-
-**Subtask 1 (Bug 1):**
-```
-측정 시작 [T-B / harness={harness} / workflow=W-B / subtask=1]
-사용할 plan: docs/superpowers/plans/T-B-{harness}-generated.md
-─────────────────────────────────────────
-아래 prompt 를 그대로 입력하세요:
-
-SplashActivity / SplashViewModel 버그 수정 중 Bug 1 을 진행한다.
-
-plan 파일: docs/superpowers/plans/T-B-{harness}-generated.md
-이번 세션: Bug 1 (음원 파일 다운로드 미실행) 진단 + 수정
-
-절차:
-1. plan 의 Subtask 1 (Bug 1) 부분을 읽는다.
-2. SplashViewModel 의 downloadFile 관련 코드를 탐색해 원인을 확인한다.
-3. superpowers:executing-plans 스킬을 인라인으로 사용해 실행한다
-   (subagent 분산 실행 금지 — 현재 세션에서 직접 실행).
-4. 최소 범위로 수정한다.
-5. acceptance 확인: SplashViewModel.downloadFile() 에서 DownloadManager.enqueue() 가 호출되는지 코드 리뷰로 확인.
-6. Bug 1 완료 후 세션 종료 (Bug 2 는 다음 세션).
-
-─────────────────────────────────────────
-완료 → /harness-validate-take4 sub-done
-```
-
-**Subtask 2 (Bug 2):**
-```
-측정 시작 [T-B / harness={harness} / workflow=W-B / subtask=2]
-사용할 plan: docs/superpowers/plans/T-B-{harness}-generated.md
-─────────────────────────────────────────
-아래 prompt 를 그대로 입력하세요:
-
-SplashActivity / SplashViewModel 버그 수정 중 Bug 2 를 진행한다.
-Bug 1 은 이미 수정 완료된 상태다.
-
-plan 파일: docs/superpowers/plans/T-B-{harness}-generated.md
-이번 세션: Bug 2 (Firebase Remote Config 실패 시 무한 로딩) 진단 + 수정
-
-절차:
-1. plan 의 Subtask 2 (Bug 2) 부분을 읽는다.
-2. SplashActivity 의 앱 초기화 흐름을 탐색해 Firebase 실패 처리 누락을 확인한다.
-3. superpowers:executing-plans 스킬을 인라인으로 사용해 실행한다
-   (subagent 분산 실행 금지 — 현재 세션에서 직접 실행).
-4. 최소 범위로 수정한다.
-5. acceptance 확인: Firebase 실패 시에도 onComplete 가 호출되는지 코드 리뷰로 확인.
-6. Bug 2 완료 후 세션 종료 (Bug 3 는 다음 세션).
-
-─────────────────────────────────────────
-완료 → /harness-validate-take4 sub-done
-```
-
-**Subtask 3 (Bug 3 — 마지막):**
-```
-측정 시작 [T-B / harness={harness} / workflow=W-B / subtask=3 (마지막)]
-사용할 plan: docs/superpowers/plans/T-B-{harness}-generated.md
-─────────────────────────────────────────
-아래 prompt 를 그대로 입력하세요:
-
-SplashActivity / SplashViewModel 버그 수정 중 Bug 3 (마지막) 을 진행한다.
-Bug 1·2 는 이미 수정 완료된 상태다.
-
-plan 파일: docs/superpowers/plans/T-B-{harness}-generated.md
-이번 세션: Bug 3 (특정 서버 에러 시 스플래시 이후 화면 미진행) 진단 + 수정
-
-절차:
-1. plan 의 Subtask 3 (Bug 3) 부분을 읽는다.
-2. SplashViewModel 의 데이터 페칭 로직과 onResultZip 동작을 탐색해 원인을 확인한다.
-3. superpowers:executing-plans 스킬을 인라인으로 사용해 실행한다
-   (subagent 분산 실행 금지 — 현재 세션에서 직접 실행).
-4. 최소 범위로 수정한다.
-5. acceptance 전체 검증:
-   - Bug 1 수정 확인 (enqueue 호출)
-   - Bug 2 수정 확인 (onComplete 호출)
-   - Bug 3 수정 확인 (splashDataState Error 전환)
-   - ./gradlew :feature:feature_splash:impl:compileDebugKotlin 통과
-
-─────────────────────────────────────────
-⚠ 마지막 subtask — 완료 후 sub-done 대신 exec-done 으로 전체 집계
-완료 → acceptance 검증 → /harness-validate-take4 exec-done
+- Bug 1: SplashViewModel.downloadFile() 에서 DownloadManager.enqueue() 가 호출된다
+- Bug 2: Firebase 실패 시에도 앱 초기화가 계속 진행된다 (onComplete 호출)
+- Bug 3: getSplashDataUseCase 실패 시 splashDataState 가 Error 로 전환된다
+- ./gradlew :feature:feature_splash:impl:compileDebugKotlin 통과
 ```
 
 ---
@@ -1154,10 +1009,18 @@ plan 파일: docs/superpowers/plans/T-B-{harness}-generated.md
 실행 중인 sub 측정 세션이 없습니다. /harness-validate-take4 sub-start 를 먼저 실행하세요.
 ```
 
-마지막 subtask (T-A: 4번 / T-B: 3번) 인 경우 경고:
-```
-⚠ 이 subtask 는 마지막 subtask 입니다.
-  sub-done 대신 /harness-validate-take4 exec-done 으로 전체 집계하세요.
+마지막 subtask 여부를 plan 파일에서 동적으로 판단:
+
+```bash
+PLAN_FILE="docs/superpowers/plans/${TASK_ID}-${HARNESS}-generated.md"
+TOTAL_SUBTASKS=$(grep -cE '^## Subtask [0-9]+' "$PLAN_FILE")
+SUBTASK_NO=$(jq -r '.subtask_no' docs/superpowers/validation/.session.json)
+
+if [ "$SUBTASK_NO" = "$TOTAL_SUBTASKS" ]; then
+  echo "⚠ 이 subtask 는 마지막 subtask 입니다 (${SUBTASK_NO}/${TOTAL_SUBTASKS})."
+  echo "  sub-done 대신 /harness-validate-take4 exec-done 으로 전체 집계하세요."
+  exit 1
+fi
 ```
 
 ### Step 2: transcript slice + 자동 수집
