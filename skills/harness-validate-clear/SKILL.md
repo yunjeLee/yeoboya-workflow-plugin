@@ -1,10 +1,13 @@
 ---
 name: harness-validate-clear
-description: brainstorming 기반 plan 작성 + Task 단위 세션 분할(clear) 워크플로우로 harness 효과를 측정한다. plan 세션에서 brainstorming으로 Task 구조를 결정한 뒤, exec 세션을 Task 하나씩 분리해 각 Task 완료 후 /clear한다. /harness-validate-clear plan-start {T-A|T-B} {none|root|module} 로 시작.
+description: harness 효과 측정 — brainstorming 기반 plan 작성 + Task 단위 세션 분할(clear) 워크플로우. T1(profile)/T2(report)/T3(webview) 모듈 분리 작업에 대해 plan 세션에서 brainstorming으로 Task 구조를 결정한 뒤, exec 세션을 Task 하나씩 분리해 각 Task 완료 후 /clear한다. /harness-validate-clear plan-start {T1|T2|T3} {none|root|module} 로 시작.
 model: opus
 ---
 
 # Harness-Validate-Clear
+
+총 9 trial = 3 task (T1 profile / T2 report / T3 webview) × 3 harness (none / root / module).
+**한 trial = 1 plan 세션 + N task 세션** (N은 plan에서 결정). 각 세션 종료 후 `/clear` → `exit` → 새 세션.
 
 ## 워크플로우 정의
 
@@ -35,11 +38,19 @@ model: opus
 
 | 명령 | 용도 |
 |------|------|
-| `plan-start {T-A\|T-B} {none\|root\|module}` | plan 측정 시작 (brainstorming 포함) |
+| `plan-start {T1\|T2\|T3} {none\|root\|module}` | plan 측정 시작 (brainstorming 포함) |
 | `plan-done` | plan 측정 종료 + 저장 |
-| `task-start {T-A\|T-B} {none\|root\|module} {task-no}` | Task N 세션 시작 |
+| `task-start {T1\|T2\|T3} {none\|root\|module} {task-no}` | Task N 세션 시작 |
 | `task-done` | Task 중간 종료 + 누적 저장 |
 | `exec-done` | 마지막 Task 종료 + 전체 집계 |
+
+### task 정의
+
+| task | 작업 | 생성되는 plan 경로 |
+|------|------|------------------|
+| T1 | profile 기능을 `:feature:feature_profile:{api,impl}` + `:data:data_profile:{api,impl}` 로 분리 | `docs/superpowers/plans/T1-{harness}-clear-generated.md` |
+| T2 | report 기능을 `:feature:feature_report:{api,impl}` + `:data:data_report:{api,impl}` 로 분리 | `docs/superpowers/plans/T2-{harness}-clear-generated.md` |
+| T3 | webview 기능을 `:feature:feature_webview:{api,impl}` + `:data:data_webview:{api,impl}` 로 분리 | `docs/superpowers/plans/T3-{harness}-clear-generated.md` |
 
 ---
 
@@ -47,12 +58,12 @@ model: opus
 
 ### Step 1: 인자 검증
 
-- `task-id`: T-A / T-B
+- `task-id`: T1 / T2 / T3
 - `harness`: none / root / module
 
 오류 시:
 ```
-사용법: /harness-validate-clear plan-start {T-A|T-B} {none|root|module}
+사용법: /harness-validate-clear plan-start {T1|T2|T3} {none|root|module}
 ```
 
 ### Step 2: 신선한 세션 검증
@@ -103,51 +114,30 @@ PY
 
 `{harness}` 를 실제 값으로 치환해 출력한다.
 
-**T-A plan prompt:**
+**T1 plan prompt:**
 
 ```
-측정 시작 [T-A / harness={harness} / phase=plan]
+측정 시작 [T1 / harness={harness} / phase=plan]
 ─────────────────────────────────────────
 아래 prompt 를 그대로 입력하세요:
 
-feature_report 기능을 복구하기 위한 구현 plan 을 작성한다.
-
-배경:
-- feature_report:impl 과 data_report:impl 의 구현 파일이 삭제된 상태다.
-- feature_report:api (ReportLauncher, ReportFrom, ReportType) 는 그대로 있다.
-- data_report:api (ReportDataSource, ReportRepository interface) 는 그대로 있다.
-- domain UseCase (ReqReportUserUseCase, ReqReportClipUserUseCase) 는 그대로 있다.
-
-복구해야 할 파일:
-- feature_report:impl
-  - ReportDialog (신고 진입 Dialog, ReportFrom 에 따라 block/describe 분기)
-  - ReportViewModel (신고 플래그 관리)
-  - ReportLauncherImpl (ReportLauncher 구현체, Hilt 바인딩)
-  - di/ReportFeatureModule (ReportLauncher Hilt 모듈)
-  - block/ReportBlockFragment + ReportBlockViewModel (차단 UI)
-  - describe/ReportDescribeFragment + ReportDescribeViewModel (신고 내용 입력 UI)
-- data_report:impl
-  - ReportService (Retrofit API interface)
-  - ReportDataSourceImpl (ReportDataSource 구현체)
-  - ReportRepositoryImpl (ReportRepository 구현체)
-  - di/ReportDataModule + di/ProvidesReportService (Hilt DI 모듈)
+profile 기능을 새 모듈로 분리하기 위한 구현 plan 을 작성한다.
 
 요구사항:
-- 기존 feature_profile / data_profile 의 패턴을 따른다
-- StateFlow 기반 상태 관리 (mutableResultState + asStateFlow)
-- Hilt constructor injection 사용
-- BaseDialogFragment / BaseViewModel 상속 유지
+- 4 개 모듈로 분리: :feature:feature_profile:{api,impl}, :data:data_profile:{api,impl}
+- 패키지 kr.co.inforexseoul.radioproject.ui.profile 는 비워져야 함
+- 외부 노출 진입점은 api 의 interface 로 추상화, impl 에서 Hilt 바인딩 제공
 
 acceptance:
-- ./gradlew :feature:feature_report:impl:compileDebugKotlin 통과
-- ./gradlew :data:data_report:impl:compileDebugKotlin 통과
+- :feature:feature_profile:{api,impl}, :data:data_profile:{api,impl} 4 모듈 생성
+- kr.co.inforexseoul.radioproject.ui.profile 패키지 비어 있음
 - ./gradlew :app:assembleDebug 통과
-- ReportLauncher.show() 호출 시 ReportDialog 가 열린다
+- grep -rn "radioproject.ui.profile" app/src/main/java/ 결과 0 건
 
 절차:
-1. superpowers:brainstorming 스킬로 복구 작업을 분석하고 Task 수와 경계를 결정한다.
+1. superpowers:brainstorming 스킬로 분리 작업을 분석하고 Task 수와 경계를 결정한다.
 2. superpowers:writing-plans 스킬로 plan 을 작성한다.
-3. 결과 plan 을 docs/superpowers/plans/T-A-{harness}-clear-generated.md 에 저장한다.
+3. 결과 plan 을 docs/superpowers/plans/T1-{harness}-clear-generated.md 에 저장한다.
 4. plan 의 각 Task 는 반드시 "## Task N" 형식 헤더로 구분한다
    (task-start 가 이 헤더를 기준으로 세션을 분할하기 때문).
 5. 코드는 작성하지 않는다 — plan 작성까지만.
@@ -156,43 +146,65 @@ acceptance:
 plan 작성 완료 → /harness-validate-clear plan-done
 ```
 
-**T-B plan prompt:**
+**T2 plan prompt:**
 
 ```
-측정 시작 [T-B / harness={harness} / phase=plan]
+측정 시작 [T2 / harness={harness} / phase=plan]
 ─────────────────────────────────────────
 아래 prompt 를 그대로 입력하세요:
 
-SplashActivity / SplashViewModel 에 존재하는 버그 3개를 진단하고 수정한다.
-
-버그 목록:
-1. [Bug 1] 음원 파일 다운로드 미실행
-   - 증상: .mp3 / .m4a / .wav 파일이 다운로드되지 않는다. 에러 로그 없음.
-   - 위치 힌트: SplashViewModel 의 downloadFile 관련 코드
-
-2. [Bug 2] Firebase Remote Config 실패 시 무한 로딩
-   - 증상: Firebase 오류 발생 시 앱이 스플래시 화면에서 멈춘다.
-   - 위치 힌트: SplashActivity 의 앱 초기화 흐름
-
-3. [Bug 3] 특정 서버 에러 시 스플래시 이후 화면으로 진행 안 됨
-   - 증상: 첫 번째 API 는 성공하지만 두 번째 API 실패 시 로딩 상태에 고착.
-   - 위치 힌트: SplashViewModel 의 데이터 페칭 로직
+report 기능을 새 모듈로 분리하기 위한 구현 plan 을 작성한다.
 
 요구사항:
-- 각 버그의 원인을 코드에서 명확히 확인한 후 수정한다.
-- 수정은 최소 범위로 한다 (해당 버그 원인 코드만 변경).
-- 다른 파일 / 기능에 영향을 주지 않는다.
+- 4 개 모듈로 분리: :feature:feature_report:{api,impl}, :data:data_report:{api,impl}
+- 패키지 kr.co.inforexseoul.radioproject.ui.report 는 비워져야 함
+- 외부 노출 상수 (ReportType, ReportFrom) 는 :feature:feature_report:api 로 이동
+- 외부 노출 진입점은 api 의 interface 로 추상화, impl 에서 Hilt 바인딩 제공
 
 acceptance:
-- Bug 1: SplashViewModel.downloadFile() 에서 DownloadManager.enqueue() 가 호출된다
-- Bug 2: Firebase 실패 시에도 앱 초기화가 계속 진행된다 (onComplete 호출)
-- Bug 3: getSplashDataUseCase 실패 시 splashDataState 가 Error 로 전환된다
-- ./gradlew :feature:feature_splash:impl:compileDebugKotlin 통과
+- :feature:feature_report:{api,impl}, :data:data_report:{api,impl} 4 모듈 생성
+- kr.co.inforexseoul.radioproject.ui.report 패키지 비어 있음
+- 외부 노출 상수 (ReportType, ReportFrom) 는 :feature:feature_report:api 로 이동
+- ./gradlew :app:assembleDebug 통과
+- grep -rn "radioproject.ui.report" app/src/main/java/ 결과 0 건
 
 절차:
-1. superpowers:brainstorming 스킬로 버그 수정 작업을 분석하고 Task 수와 경계를 결정한다.
+1. superpowers:brainstorming 스킬로 분리 작업을 분석하고 Task 수와 경계를 결정한다.
 2. superpowers:writing-plans 스킬로 plan 을 작성한다.
-3. 결과 plan 을 docs/superpowers/plans/T-B-{harness}-clear-generated.md 에 저장한다.
+3. 결과 plan 을 docs/superpowers/plans/T2-{harness}-clear-generated.md 에 저장한다.
+4. plan 의 각 Task 는 반드시 "## Task N" 형식 헤더로 구분한다
+   (task-start 가 이 헤더를 기준으로 세션을 분할하기 때문).
+5. 코드는 작성하지 않는다 — plan 작성까지만.
+
+─────────────────────────────────────────
+plan 작성 완료 → /harness-validate-clear plan-done
+```
+
+**T3 plan prompt:**
+
+```
+측정 시작 [T3 / harness={harness} / phase=plan]
+─────────────────────────────────────────
+아래 prompt 를 그대로 입력하세요:
+
+webview 기능을 새 모듈로 분리하기 위한 구현 plan 을 작성한다.
+
+요구사항:
+- 4 개 모듈로 분리: :feature:feature_webview:{api,impl}, :data:data_webview:{api,impl}
+- 패키지 kr.co.inforexseoul.radioproject.ui.webview 는 비워져야 함
+- 외부 노출 진입점은 api 의 interface 로 추상화, impl 에서 Hilt 바인딩 제공
+
+acceptance:
+- :feature:feature_webview:{api,impl}, :data:data_webview:{api,impl} 4 모듈 생성
+- kr.co.inforexseoul.radioproject.ui.webview 패키지 비어 있음
+- 외부 노출 진입점은 :feature:feature_webview:api 의 interface 로 추상화하고 impl 에서 Hilt 바인딩 제공
+- ./gradlew :app:assembleDebug 통과
+- grep -rn "radioproject.ui.webview" app/src/main/java/ 결과 0 건
+
+절차:
+1. superpowers:brainstorming 스킬로 분리 작업을 분석하고 Task 수와 경계를 결정한다.
+2. superpowers:writing-plans 스킬로 plan 을 작성한다.
+3. 결과 plan 을 docs/superpowers/plans/T3-{harness}-clear-generated.md 에 저장한다.
 4. plan 의 각 Task 는 반드시 "## Task N" 형식 헤더로 구분한다
    (task-start 가 이 헤더를 기준으로 세션을 분할하기 때문).
 5. 코드는 작성하지 않는다 — plan 작성까지만.
@@ -277,39 +289,21 @@ tokens         :
 plan_task_count (자동 추출): {PLAN_TASK_COUNT}
 ```
 
-**T-A 채점 rubric:**
+**채점 rubric (T1 / T2 / T3 공통):**
 ```
-[채점 rubric — T-A plan phase]
-- plan_layer_structure_correct [y/n]: data → feature 계층 순서 + ## Task N 헤더 존재
-- plan_dependency_correct [y/n]: DI 모듈, Hilt 바인딩, 의존성 방향 포함 여부
-- plan_acceptance_coverage [0~4]: acceptance 4개 중 plan 이 명시적으로 다루는 개수
-- plan_task_count [숫자]: 자동 추출값 검토 후 필요 시 수정
-```
-
-**T-B 채점 rubric:**
-```
-[채점 rubric — T-B plan phase]
-- plan_bug_diagnosis_correct [0~3]: 3개 버그 중 원인을 올바르게 진단한 개수
-- plan_fix_strategy_correct [0~3]: 3개 버그 중 올바른 수정 방향을 제시한 개수
-- plan_acceptance_coverage [0~4]: acceptance 4개 중 plan 이 명시적으로 다루는 개수
+[채점 rubric — plan phase]
+- plan_module_structure_correct [y/n]: 의도한 4 모듈 (:feature:..:{api,impl} × 2) 을 plan 이 명시했는지
+- plan_dependency_correct [y/n]: 의존성 방향이 맞는지 (impl → api, feature → data:api 등)
+- plan_acceptance_coverage [0~N]: acceptance 항목 중 plan 이 명시적으로 다루는 개수
 - plan_task_count [숫자]: 자동 추출값 검토 후 필요 시 수정
 ```
 
 ### Step 6: 수동 질문 순차
 
-**T-A:**
 ```
-Q1. plan_layer_structure_correct [y/n]:
+Q1. plan_module_structure_correct [y/n]:
 Q2. plan_dependency_correct [y/n]:
-Q3. plan_acceptance_coverage [숫자 0~4]:
-Q4. plan_task_count [숫자, 자동값={PLAN_TASK_COUNT}]:
-```
-
-**T-B:**
-```
-Q1. plan_bug_diagnosis_correct [숫자 0~3]:
-Q2. plan_fix_strategy_correct [숫자 0~3]:
-Q3. plan_acceptance_coverage [숫자 0~4]:
+Q3. plan_acceptance_coverage [숫자]:
 Q4. plan_task_count [숫자, 자동값={PLAN_TASK_COUNT}]:
 ```
 
@@ -321,15 +315,15 @@ docs/superpowers/validation/{YYYYMMDD-HHMM}-{task_id}-{harness}-clear-plan.json
 docs/superpowers/validation/{YYYYMMDD-HHMM}-{task_id}-{harness}-clear-plan.md
 ```
 
-**T-A .json 예시:**
+**.json 예시:**
 ```json
 {
   "timestamp": "2026-05-15T00:00:00Z",
-  "task_id": "T-A",
+  "task_id": "T1",
   "harness": "none",
   "workflow": "clear",
   "phase": "plan",
-  "plan_file": "docs/superpowers/plans/T-A-none-clear-generated.md",
+  "plan_file": "docs/superpowers/plans/T1-none-clear-generated.md",
   "automated": {
     "tool_call_total": 0,
     "tool_call_breakdown": { "Read": 0, "Edit": 0, "Bash": 0, "Write": 0 },
@@ -339,36 +333,10 @@ docs/superpowers/validation/{YYYYMMDD-HHMM}-{task_id}-{harness}-clear-plan.md
     "cache_creation_input_tokens": 0
   },
   "manual": {
-    "plan_layer_structure_correct": true,
+    "plan_module_structure_correct": true,
     "plan_dependency_correct": true,
     "plan_acceptance_coverage": 4,
     "plan_task_count": 4
-  }
-}
-```
-
-**T-B .json 예시:**
-```json
-{
-  "timestamp": "2026-05-15T00:00:00Z",
-  "task_id": "T-B",
-  "harness": "none",
-  "workflow": "clear",
-  "phase": "plan",
-  "plan_file": "docs/superpowers/plans/T-B-none-clear-generated.md",
-  "automated": {
-    "tool_call_total": 0,
-    "tool_call_breakdown": { "Read": 0, "Edit": 0, "Bash": 0, "Write": 0 },
-    "input_tokens": 0,
-    "output_tokens": 0,
-    "cache_read_input_tokens": 0,
-    "cache_creation_input_tokens": 0
-  },
-  "manual": {
-    "plan_bug_diagnosis_correct": 3,
-    "plan_fix_strategy_correct": 3,
-    "plan_acceptance_coverage": 4,
-    "plan_task_count": 3
   }
 }
 ```
@@ -399,13 +367,13 @@ rm docs/superpowers/validation/.session.json /tmp/harness-validate-clear-slice.j
 
 ### Step 1: 인자 검증
 
-- `task-id`: T-A / T-B
+- `task-id`: T1 / T2 / T3
 - `harness`: none / root / module
 - `task-no`: 1 이상의 정수
 
 오류 시:
 ```
-사용법: /harness-validate-clear task-start {T-A|T-B} {none|root|module} {task번호}
+사용법: /harness-validate-clear task-start {T1|T2|T3} {none|root|module} {task번호}
 ```
 
 ### Step 2: 신선한 세션 검증
@@ -541,20 +509,30 @@ plan 파일: {PLAN_FILE}
 
 **task-id 별 acceptance 목록 (IS_LAST=true 일 때 삽입):**
 
-T-A:
+T1:
 ```
-- ./gradlew :feature:feature_report:impl:compileDebugKotlin 통과
-- ./gradlew :data:data_report:impl:compileDebugKotlin 통과
+- :feature:feature_profile:{api,impl}, :data:data_profile:{api,impl} 4 모듈 생성
+- kr.co.inforexseoul.radioproject.ui.profile 패키지 비어 있음
 - ./gradlew :app:assembleDebug 통과
-- ReportLauncher.show() 호출 시 ReportDialog 가 열린다
+- grep -rn "radioproject.ui.profile" app/src/main/java/ 결과 0 건
 ```
 
-T-B:
+T2:
 ```
-- Bug 1: SplashViewModel.downloadFile() 에서 DownloadManager.enqueue() 가 호출된다
-- Bug 2: Firebase 실패 시에도 앱 초기화가 계속 진행된다 (onComplete 호출)
-- Bug 3: getSplashDataUseCase 실패 시 splashDataState 가 Error 로 전환된다
-- ./gradlew :feature:feature_splash:impl:compileDebugKotlin 통과
+- :feature:feature_report:{api,impl}, :data:data_report:{api,impl} 4 모듈 생성
+- kr.co.inforexseoul.radioproject.ui.report 패키지 비어 있음
+- 외부 노출 상수 (ReportType, ReportFrom) 는 :feature:feature_report:api 로 이동
+- ./gradlew :app:assembleDebug 통과
+- grep -rn "radioproject.ui.report" app/src/main/java/ 결과 0 건
+```
+
+T3:
+```
+- :feature:feature_webview:{api,impl}, :data:data_webview:{api,impl} 4 모듈 생성
+- kr.co.inforexseoul.radioproject.ui.webview 패키지 비어 있음
+- 외부 노출 진입점은 :feature:feature_webview:api 의 interface 로 추상화하고 impl 에서 Hilt 바인딩 제공
+- ./gradlew :app:assembleDebug 통과
+- grep -rn "radioproject.ui.webview" app/src/main/java/ 결과 0 건
 ```
 
 ---
@@ -702,46 +680,24 @@ tokens         :
   cache_creation     : {total_cache_creation_input_tokens}
 ```
 
-**T-A 채점 rubric:**
+**채점 rubric (T1 / T2 / T3 공통):**
 ```
-[채점 rubric — T-A exec ({TOTAL_TASKS} Task 전체)]
-- buildable [y/n]: acceptance 4개 전체 통과
+[채점 rubric — exec ({TOTAL_TASKS} Task 전체)]
+- buildable [y/n]: acceptance 전체 통과
 - hallucination_count [숫자]: {TOTAL_TASKS}개 task 세션 전체 합산
 - correction_prompt_count [숫자]: {TOTAL_TASKS}개 task 세션 전체 합산
 - repeated_mistake_count [숫자]: 동일 카테고리 실수 2회 이상 (세션 간 포함)
 - task_context_loss_count [숫자]: /clear 후 이전 Task 결과 오인 / 재탐색 횟수
 ```
 
-**T-B 채점 rubric:**
-```
-[채점 rubric — T-B exec ({TOTAL_TASKS} Task 전체)]
-- buildable [y/n]: acceptance 4개 전체 통과
-- bugs_fixed_count [0~3]: 실제로 수정된 버그 수 (코드 확인 기준)
-- hallucination_count [숫자]: {TOTAL_TASKS}개 task 세션 전체 합산
-- correction_prompt_count [숫자]: {TOTAL_TASKS}개 task 세션 전체 합산
-- repeated_mistake_count [숫자]: 동일 카테고리 실수 2회 이상
-- task_context_loss_count [숫자]: /clear 후 이전 버그 수정 상태 오인 횟수
-```
-
 ### Step 5: 수동 질문 순차
 
-**T-A:**
 ```
 Q1. buildable [y/n]:
 Q2. hallucination_count [숫자, {TOTAL_TASKS} task 합산]:
 Q3. correction_prompt_count [숫자, {TOTAL_TASKS} task 합산]:
 Q4. repeated_mistake_count [숫자]:
 Q5. task_context_loss_count [숫자]:
-```
-
-**T-B:**
-```
-Q1. buildable [y/n]:
-Q2. bugs_fixed_count [0~3]:
-Q3. hallucination_count [숫자, {TOTAL_TASKS} task 합산]:
-Q4. correction_prompt_count [숫자, {TOTAL_TASKS} task 합산]:
-Q5. repeated_mistake_count [숫자]:
-Q6. task_context_loss_count [숫자]:
 ```
 
 ### Step 6: 결과 저장
@@ -752,15 +708,15 @@ docs/superpowers/validation/{YYYYMMDD-HHMM}-{task_id}-{harness}-clear-exec.json
 docs/superpowers/validation/{YYYYMMDD-HHMM}-{task_id}-{harness}-clear-exec.md
 ```
 
-**T-A .json 예시:**
+**.json 예시:**
 ```json
 {
   "timestamp": "2026-05-15T00:00:00Z",
-  "task_id": "T-A",
+  "task_id": "T1",
   "harness": "none",
   "workflow": "clear",
   "phase": "exec",
-  "plan_file": "docs/superpowers/plans/T-A-none-clear-generated.md",
+  "plan_file": "docs/superpowers/plans/T1-none-clear-generated.md",
   "automated": {
     "tasks_included": [1, 2, 3, 4],
     "tool_call_total": 0,
@@ -779,8 +735,6 @@ docs/superpowers/validation/{YYYYMMDD-HHMM}-{task_id}-{harness}-clear-exec.md
   }
 }
 ```
-
-**T-B .json 에는 `bugs_fixed_count` 추가.**
 
 채점용 .md 는 본 문서 끝 **공통 transcript → markdown 변환 스크립트** 사용.
 
@@ -886,7 +840,7 @@ mv /tmp/harness-validate-clear.md docs/superpowers/validation/{YYYYMMDD-HHMM}-{t
 
 ### Worktree 구성
 
-take4 와 동일한 3 worktree 를 재사용한다.
+harness-validate 와 동일한 3 worktree 를 재사용한다.
 
 | 브랜치 | harness 상태 | worktree 경로 |
 |--------|-------------|--------------|
@@ -922,15 +876,11 @@ take4 와 동일한 3 worktree 를 재사용한다.
   → /clear → exit → 다음 trial
 ```
 
-### task_context_loss_count 채점 기준
+### harness-validate 결과와 비교 시
 
-`/clear` 이후 새 세션에서 이전 Task 결과를 잘못 인식하거나 이미 완료된 파일을 재탐색하는 경우를 1회로 센다. 단, task-start 가 출력한 `PREV_DONE` 안내를 읽고 정상적으로 맥락을 복원하는 경우는 카운트하지 않는다.
-
-### take4 결과와 비교 시
-
-- `workflow=clear` (이 스킬) vs `workflow=W-A` (take4 단일 세션) vs `workflow=W-B` (take4 subtask 분할)
-- clear 는 brainstorming 이 항상 포함되므로 plan 품질 비교 시 W-A 대비 brainstorming 효과가 혼재됨에 유의
-- `task_context_loss_count` 는 clear 고유 메트릭. take4 W-B 의 `subtask_context_loss_count` 와 정의 동일
+- `workflow=clear` (이 스킬) vs `workflow=single` (harness-validate 단일 exec 세션)
+- clear 는 brainstorming 이 항상 포함되므로 plan 품질 비교 시 single 대비 brainstorming 효과가 혼재됨에 유의
+- `task_context_loss_count` 는 clear 고유 메트릭 — /clear 이후 이전 Task 결과를 잘못 인식하거나 이미 완료된 파일을 재탐색하는 경우를 1회로 센다. task-start 가 출력한 `PREV_DONE` 안내를 읽고 정상적으로 맥락을 복원하는 경우는 카운트하지 않는다.
 
 ### n=1 한계
 
