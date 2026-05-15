@@ -135,7 +135,7 @@ acceptance:
 - grep -rn "radioproject.ui.profile" app/src/main/java/ 결과 0 건
 
 절차:
-1. superpowers:brainstorming 스킬로 분리 작업을 분석하고 Task 수와 경계를 결정한다.
+1. superpowers:brainstorming 스킬로 분리 작업을 분석하고 Task 수와 경계를 결정한다 (각 Task = 독립적으로 완료 가능한 하나의 목적).
 2. superpowers:writing-plans 스킬로 plan 을 작성한다.
 3. 결과 plan 을 docs/superpowers/plans/T1-{harness}-clear-generated.md 에 저장한다.
 4. plan 의 각 Task 는 반드시 "## Task N" 형식 헤더로 구분한다
@@ -169,7 +169,7 @@ acceptance:
 - grep -rn "radioproject.ui.report" app/src/main/java/ 결과 0 건
 
 절차:
-1. superpowers:brainstorming 스킬로 분리 작업을 분석하고 Task 수와 경계를 결정한다.
+1. superpowers:brainstorming 스킬로 분리 작업을 분석하고 Task 수와 경계를 결정한다 (각 Task = 독립적으로 완료 가능한 하나의 목적).
 2. superpowers:writing-plans 스킬로 plan 을 작성한다.
 3. 결과 plan 을 docs/superpowers/plans/T2-{harness}-clear-generated.md 에 저장한다.
 4. plan 의 각 Task 는 반드시 "## Task N" 형식 헤더로 구분한다
@@ -202,7 +202,7 @@ acceptance:
 - grep -rn "radioproject.ui.webview" app/src/main/java/ 결과 0 건
 
 절차:
-1. superpowers:brainstorming 스킬로 분리 작업을 분석하고 Task 수와 경계를 결정한다.
+1. superpowers:brainstorming 스킬로 분리 작업을 분석하고 Task 수와 경계를 결정한다 (각 Task = 독립적으로 완료 가능한 하나의 목적).
 2. superpowers:writing-plans 스킬로 plan 을 작성한다.
 3. 결과 plan 을 docs/superpowers/plans/T3-{harness}-clear-generated.md 에 저장한다.
 4. plan 의 각 Task 는 반드시 "## Task N" 형식 헤더로 구분한다
@@ -464,7 +464,7 @@ IS_LAST=$( [ "$TASK_NO" = "$TOTAL_TASKS" ] && echo "true" || echo "false" )
 TASK_CONTENT=$(awk \
   "/^## Task ${TASK_NO}$/{found=1; next} \
    found && /^## Task [0-9]+/{exit} \
-   found{print}" "$PLAN_FILE" | head -80)
+   found{print}" "$PLAN_FILE")
 
 # 이전 task 완료 문구 (task-no >= 2 일 때)
 if [ "$TASK_NO" -ge 2 ]; then

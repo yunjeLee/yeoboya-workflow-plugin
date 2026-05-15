@@ -77,7 +77,6 @@
    - 인덱스 행의 모듈명/경로가 실제 `{path}/CLAUDE.md` 와 일치하는지.
    - 인덱스에는 있는데 `{path}/CLAUDE.md` 가 없거나, 반대 케이스.
    - 인덱스의 "역할" 셀이 모듈 CLAUDE.md Q1 첫 문장과 동일한지 (drift 검출).
-4. **루트 CLAUDE.md 의 `@docs/MODULE_MAP.md` 참조 존재**: 루트 CLAUDE.md 마지막에 `@docs/MODULE_MAP.md` 한 줄이 있는지.
 
 **심각도**:
 
@@ -87,7 +86,6 @@
 | 의존 모듈이 settings.gradle.kts / Package.swift 에 없음 | **CRITICAL** |
 | MODULE_MAP 행 ↔ 모듈 CLAUDE.md 부재 양방향 누락 | **CRITICAL** |
 | MODULE_MAP "역할" 셀 ↔ 모듈 Q1 drift | WARNING |
-| 루트 CLAUDE.md 에 `@docs/MODULE_MAP.md` 누락 | **CRITICAL** |
 
 **권장 수정 포맷**:
 
